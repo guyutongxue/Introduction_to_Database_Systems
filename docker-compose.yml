@@ -28,7 +28,7 @@ services:
     build: .
     restart: unless-stopped
     ports:
-      "$PORT:$PORT"
+      - "$PORT:$PORT"
 
 volumes:
   postgres:
