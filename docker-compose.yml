@@ -21,6 +21,14 @@ services:
     restart: always
     ports:
       - "54188:8080"
+  
+  app:
+    depends_on:
+      - db
+    build: .
+    restart: unless-stopped
+    ports:
+      "$PORT:$PORT"
 
 volumes:
   postgres:
