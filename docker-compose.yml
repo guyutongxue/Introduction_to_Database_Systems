@@ -1,0 +1,26 @@
+version: '3.9'
+
+services:
+  db:
+    image: postgres
+    restart: always
+    environment:
+      POSTGRES_PASSWORD:
+      POSTGRES_USER: gy
+      POSTGRES_DB: order
+      PGDATA: /data/postgres
+    ports:
+      - "5432:5432"
+    volumes:
+      # Don't mount data now, for testing initialize script
+      # - postgres:/data/postgres
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+
+  adminer:
+    image: adminer
+    restart: always
+    ports:
+      - "54188:8080"
+
+volumes:
+  postgres:
