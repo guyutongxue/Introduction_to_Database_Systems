@@ -1,6 +1,7 @@
 FROM node:18
 
-RUN corepack enable && pnpm add -g pnpm
+RUN curl -fsSL https://get.pnpm.io/install.sh | bash -
+ENV PATH="/root/.local/share/pnpm:$PATH"
 
 WORKDIR /dbassignment
 
