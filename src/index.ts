@@ -1,6 +1,6 @@
+import { env } from "node:process";
 import Fastify from "fastify";
 import { query } from "./db";
-import { env } from "node:process";
 
 const PORT = Number(env.PORT ?? 3000);
 

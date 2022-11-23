@@ -1,6 +1,6 @@
-import dotenv from "dotenv";
 import { env } from "node:process";
-import PG from "pg"; // An CJS module, use default-export here
+import * as dotenv from "dotenv";
+import PG from "pg"; // A CJS-only package, no named export
 
 dotenv.config();
 
