@@ -5,10 +5,10 @@ import PG from "pg"; // A CJS-only package, no named export
 dotenv.config();
 
 const pool = new PG.Pool({
-  host: "guoyi.work",
-  user: "gy",
+  host: env.POSTGRES_HOST,
+  user: env.POSTGRES_USER,
   password: env.POSTGRES_PASSWORD,
-  database: "order"
+  database: env.POSTGRES_DB
 });
 
 export async function query(text: string, param: string[] = []) {
