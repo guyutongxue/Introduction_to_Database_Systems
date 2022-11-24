@@ -9,10 +9,10 @@ const fastify = Fastify({
   logger: true
 });
 
-fastify.get('/', async (req) => {
+fastify.get('/', async () => {
   const { rows } = await query(`SELECT NOW()`);
   return rows;
-})
+});
 
 await fastify.listen({
   host: HOST,

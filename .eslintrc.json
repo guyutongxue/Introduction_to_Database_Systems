@@ -1,0 +1,16 @@
+{
+  "extends": [
+    "eslint:recommended",
+    "plugin:@typescript-eslint/recommended"
+  ],
+  "parser": "@typescript-eslint/parser",
+  "plugins": [
+    "@typescript-eslint",
+    "only-warn"
+  ],
+  "root": true,
+  "rules": {
+    "semi": "warn",
+    "eqeqeq": "warn"
+  }
+}
