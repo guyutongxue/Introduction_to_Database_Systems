@@ -14,9 +14,14 @@ POSTGRES_DB=...
 PORT=80
 ```
 
+## 生成测试数据
+
+```sh
+node scripts/init.mjs
+```
+
 ### Docker
 
 ```
 sudo docker compose up --build -d
 ```
-

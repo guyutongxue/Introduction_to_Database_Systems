@@ -14,7 +14,7 @@ services:
     volumes:
       # Don't mount data now, for testing initialize script
       # - postgres:/data/postgres
-      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+      - ./scripts/init.sql:/docker-entrypoint-initdb.d/init.sql
 
   adminer:
     image: adminer

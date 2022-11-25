@@ -10,7 +10,7 @@ const fastify = Fastify({
 });
 
 fastify.get('/', async () => {
-  const { rows } = await query(`SELECT NOW()`);
+  const { rows } = await query(`SELECT * FROM customer`);
   return rows;
 });
 

@@ -8,6 +8,12 @@
     "@typescript-eslint",
     "only-warn"
   ],
+  "env": {
+    "node": true
+  },
+  "parserOptions": {
+    "ecmaVersion": 2021
+  },
   "root": true,
   "rules": {
     "semi": "warn",
