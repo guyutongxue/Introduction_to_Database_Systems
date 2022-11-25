@@ -29,7 +29,7 @@ const TYPE = [
 const FAMILY = ["氏", "记", "老师", "家", "大妈", "少爷", "阁"];
 
 export function fakeShop() {
-  if (Math.random() > 0.7) {
+  if (Math.random() > 0.3) {
     return (
       faker.name.lastName() +
       faker.helpers.arrayElement(FAMILY) +
