@@ -53,6 +53,8 @@ function toSql(table, keys, size, generator) {
             } else {
               return `'${v}'`;
             }
+          } else {
+            throw v;
           }
         })
         .join(", ")
