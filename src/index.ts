@@ -1,6 +1,5 @@
 import { env } from "node:process";
 import Fastify from "fastify";
-import { query } from "./db";
 import auth from "./auth";
 import user from "./user";
 
@@ -13,19 +12,13 @@ const fastify = Fastify({
 
 await fastify.register(auth);
 await fastify.register(user);
-fastify.post(
-  "/secure",
-  {
-    onRequest: [fastify.verifyJwt],
-  },
-  (req) => {
-    return req.user;
-  }
-);
 
-fastify.get("/", async () => {
-  const { rows } = await query(`SELECT * FROM customer`);
-  return rows;
+fastify.get("/", async (req, rep) => {
+  rep
+    .header("Content-Type", "text/html")
+    .send(
+      "<!DOCTYPE html><title>GY的外卖平台管理系统</title><h1>你好，数据库！</h1>"
+    );
 });
 
 await fastify.listen({
