@@ -54,7 +54,7 @@ function toSql(table, keys, size, generator) {
               return `'${v}'`;
             }
           } else {
-            throw v;
+            throw new Error(`Unknown type ${v}, translating key "${k}" of table "${table}"`);
           }
         })
         .join(", ")
@@ -109,7 +109,7 @@ function createShop() {
     shop_password: faker.internet.password(),
     shop_location: city + faker.address.streetAddress(),
     shop_phone: faker.phone.number(),
-    delivry_range: city,
+    delivery_range: city,
     business_status: Number(Math.random() > 0.1),
   };
 }
