@@ -49,14 +49,17 @@ CREATE TABLE dish (
     dish_sales INTEGER NOT NULL DEFAULT 0
 );
 
+-- 订单内所包含的菜品
 CREATE TABLE contain (
-    dish_id INTEGER PRIMARY KEY REFERENCES dish,
-    order_id INTEGER NOT NULL REFERENCES orders,
-    contain_num INTEGER NOT NULL DEFAULT 1
+    dish_id INTEGER REFERENCES dish,
+    order_id INTEGER REFERENCES orders,
+    contain_num INTEGER NOT NULL DEFAULT 1,
+    PRIMARY KEY (dish_id, order_id)
 );
 
 CREATE TABLE shopping_car (
-    dish_id INTEGER PRIMARY KEY REFERENCES customer,
-    cust_id INTEGER NOT NULL REFERENCES dish,
-    car_num INTEGER NOT NULL DEFAULT 1
+    dish_id INTEGER REFERENCES dish,
+    cust_id INTEGER REFERENCES customer,
+    car_num INTEGER NOT NULL DEFAULT 1,
+    PRIMARY KEY (dish_id, cust_id)
 );
