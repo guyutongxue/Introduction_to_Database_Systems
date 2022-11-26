@@ -17,7 +17,10 @@ fastify.get("/", async (req, rep) => {
   rep
     .header("Content-Type", "text/html")
     .send(
-      "<!DOCTYPE html><title>GY的外卖平台管理系统</title><h1>你好，数据库！</h1>"
+      `<!DOCTYPE html>
+<meta charset="utf-8">
+<title>GY的外卖平台管理系统</title>
+<h1>你好，数据库！</h1>`
     );
 });
 
