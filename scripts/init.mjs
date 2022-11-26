@@ -226,7 +226,7 @@ const ORDER_KEYS = [
   "order_begin_time",
   "order_state",
 ];
-const ORDER_NUM = 50;
+const ORDER_NUM = 100;
 toSql("orders", ORDER_KEYS, ORDER_NUM, createOrder);
 
 const CONTAIN_KEYS = ["dish_id", "order_id", "contain_num"];

@@ -6,18 +6,18 @@ CREATE TABLE customer (
     cust_gender SMALLINT,
     cust_phone TEXT UNIQUE NOT NULL,
     cust_email TEXT,
-    cust_account TEXT NOT NULL,
+    cust_account TEXT,
     cust_password TEXT NOT NULL
 );
 
 CREATE TABLE shop (
     shop_id SERIAL PRIMARY KEY,
     shop_name TEXT NOT NULL,
-    shop_password TEXT,
+    shop_password TEXT NOT NULL,
     shop_location TEXT,
     shop_phone TEXT UNIQUE NOT NULL,
     delivery_range TEXT,
-    business_status SMALLINT NOT NULL
+    business_status SMALLINT NOT NULL DEFAULT 1
 );
 
 CREATE TABLE courier (
@@ -36,7 +36,7 @@ CREATE TABLE orders (
     cust_id INTEGER NOT NULL REFERENCES customer,
     shop_id INTEGER NOT NULL REFERENCES shop,
     cour_id INTEGER NOT NULL REFERENCES courier,
-    order_begin_time TIMESTAMP NOT NULL,
+    order_begin_time TIMESTAMPTZ NOT NULL,
     order_state SMALLINT NOT NULL
 );
 
