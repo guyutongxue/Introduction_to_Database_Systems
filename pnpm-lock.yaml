@@ -25,6 +25,7 @@ specifiers:
   pinyin: 3.0.0-alpha.5
   rollup: ^3.3.0
   rollup-plugin-auto-external: ^2.0.0
+  ts-toolbelt: ^9.6.0
   tslib: ^2.4.1
   tsx: ^3.12.1
   typescript: ^4.9.3
@@ -56,6 +57,7 @@ devDependencies:
   nodemon: 2.0.20
   rollup: 3.3.0
   rollup-plugin-auto-external: 2.0.0_rollup@3.3.0
+  ts-toolbelt: 9.6.0
   tslib: 2.4.1
   tsx: 3.12.1
   typescript: 4.9.3
@@ -2732,7 +2734,6 @@ packages:
 
   /ts-toolbelt/9.6.0:
     resolution: {integrity: sha512-nsZd8ZeNUzukXPlJmTBwUAuABDe/9qtVDelJeT/qW0ow3ZS3BsQJtNkan1802aM9Uf68/Y8ljw86Hu0h5IUW3w==}
-    dev: false
 
   /tslib/1.14.1:
     resolution: {integrity: sha512-Xni35NKzjgMrwevysHTCArtLDpPvye8zV/0E4EyYn43P7/7qvQwPh9BGkHewbMulVntbigmcT7rdX3BNo9wRJg==}
