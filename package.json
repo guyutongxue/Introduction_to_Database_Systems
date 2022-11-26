@@ -1,35 +1,40 @@
 {
-	"type": "module",
-	"module": "dist/index.js",
-	"scripts": {
-		"build": "rollup -c",
-		"start:dev": "nodemon src/index.ts",
-		"start:prod": "node dist/index.js"
-	},
-	"dependencies": {
-		"dotenv": "^16.0.3",
-		"fastify": "^4.10.0",
-		"pg": "^8.8.0"
-	},
-	"devDependencies": {
-		"@faker-js/faker": "^7.6.0",
-		"@rollup/plugin-terser": "^0.1.0",
-		"@rollup/plugin-typescript": "^9.0.2",
-		"@types/lodash-es": "^4.17.6",
-		"@types/pg": "^8.6.5",
-		"@typescript-eslint/eslint-plugin": "^5.44.0",
-		"@typescript-eslint/parser": "^5.44.0",
-		"eslint": "^8.28.0",
-		"eslint-plugin-only-warn": "^1.0.3",
-		"lodash-es": "^4.17.21",
-		"md5": "^2.3.0",
-		"moment": "^2.29.4",
-		"nodemon": "^2.0.20",
-		"pinyin": "3.0.0-alpha.5",
-		"rollup": "^3.3.0",
-		"rollup-plugin-auto-external": "^2.0.0",
-		"tslib": "^2.4.1",
-		"tsx": "^3.12.1",
-		"typescript": "^4.9.3"
-	}
+  "type": "module",
+  "module": "dist/index.js",
+  "scripts": {
+    "build": "rollup -c",
+    "start:dev": "nodemon src/index.ts",
+    "start:prod": "node dist/index.js"
+  },
+  "dependencies": {
+    "@fastify/jwt": "^6.4.0",
+    "@fastify/type-provider-json-schema-to-ts": "^2.1.1",
+    "dotenv": "^16.0.3",
+    "fastify": "^4.10.0",
+    "fastify-plugin": "^4.3.0",
+    "json-schema-to-ts": "^2.6.1",
+    "md5": "^2.3.0",
+    "pg": "^8.8.0",
+    "pinyin": "3.0.0-alpha.5"
+  },
+  "devDependencies": {
+    "@faker-js/faker": "^7.6.0",
+    "@rollup/plugin-terser": "^0.1.0",
+    "@rollup/plugin-typescript": "^9.0.2",
+    "@types/lodash-es": "^4.17.6",
+    "@types/md5": "^2.3.2",
+    "@types/pg": "^8.6.5",
+    "@typescript-eslint/eslint-plugin": "^5.44.0",
+    "@typescript-eslint/parser": "^5.44.0",
+    "eslint": "^8.28.0",
+    "eslint-plugin-only-warn": "^1.0.3",
+    "lodash-es": "^4.17.21",
+    "moment": "^2.29.4",
+    "nodemon": "^2.0.20",
+    "rollup": "^3.3.0",
+    "rollup-plugin-auto-external": "^2.0.0",
+    "tslib": "^2.4.1",
+    "tsx": "^3.12.1",
+    "typescript": "^4.9.3"
+  }
 }

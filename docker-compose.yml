@@ -12,8 +12,7 @@ services:
     ports:
       - "5432:5432"
     volumes:
-      # Don't mount data now, for testing initialize script
-      # - postgres:/data/postgres
+      - postgres:/data/postgres
       - ./scripts/init.sql:/docker-entrypoint-initdb.d/init.sql
 
   adminer:
