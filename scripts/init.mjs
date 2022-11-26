@@ -26,10 +26,11 @@ emit(SCHEMA_SQL);
 
 /**
  *
+ * @template {readonly string[]} T
  * @param {string} table
- * @param {string[]} keys
+ * @param {T} keys
  * @param {number} size
- * @param {() => Record<string, unknown>} generator
+ * @param {() => Record<T[number], unknown>} generator
  */
 function toSql(table, keys, size, generator) {
   emit(`INSERT INTO ${table} (${keys.join(", ")}) VALUES\n`);
@@ -106,7 +107,7 @@ function createShop() {
     shop_password: faker.internet.password(),
     shop_location: city + faker.address.streetAddress(),
     shop_phone: faker.phone.number(),
-    delivery_range: city,
+    delivry_range: city,
     business_status: Number(Math.random() > 0.1),
   };
 }
