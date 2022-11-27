@@ -2,8 +2,8 @@
 import typescript from "@rollup/plugin-typescript";
 import terser from "@rollup/plugin-terser";
 import autoExternal from "rollup-plugin-auto-external";
+import path from "node:path";
 
-/** @type {import("rollup").RollupOptions} */
 export default {
   input: "src/index.ts",
   output: {
@@ -15,7 +15,14 @@ export default {
   ],
   plugins: [
     typescript(),
+    {
+      // replace `import.meta.url`
+      resolveImportMeta(property, { moduleId }) {
+        const rp = path.relative("dist", moduleId);
+        return `new URL("${rp}", import.meta.url).href`;
+      }
+    },
     autoExternal(),
-    terser(),
+    // terser(),
   ],
 };

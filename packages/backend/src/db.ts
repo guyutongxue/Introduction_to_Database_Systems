@@ -1,8 +1,5 @@
 import { env } from "node:process";
-import * as dotenv from "dotenv";
 import PG, { QueryResultRow } from "pg"; // A CJS-only package, no named export
-
-dotenv.config();
 
 const pool = new PG.Pool({
   host: env.POSTGRES_HOST,

@@ -1,8 +1,10 @@
+import "./dotenv";
 import { env } from "node:process";
 import Fastify from "fastify";
 import auth from "./auth";
 import user from "./user";
 import customer from "./customer";
+import frontend from "./frontend";
 
 const PORT = Number(env.PORT ?? 3000);
 const HOST = env.HOST ?? "0.0.0.0";
@@ -14,17 +16,7 @@ const fastify = Fastify({
 await fastify.register(auth);
 await fastify.register(user);
 await fastify.register(customer);
-
-fastify.get("/", async (req, rep) => {
-  rep
-    .header("Content-Type", "text/html")
-    .send(
-      `<!DOCTYPE html>
-<meta charset="utf-8">
-<title>GY的外卖平台管理系统</title>
-<h1>你好，数据库！</h1>`
-    );
-});
+await fastify.register(frontend);
 
 await fastify.listen({
   host: HOST,

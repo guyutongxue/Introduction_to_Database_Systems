@@ -10,6 +10,6 @@ RUN pnpm fetch
 
 COPY . ./
 RUN pnpm install --offline --unsafe-perm && \
-  pnpm build
+  pnpm -r run build
 
-CMD [ "pnpm", "start:prod" ]
+CMD [ "pnpm", "start" ]

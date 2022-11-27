@@ -1,7 +1,6 @@
 node_modules/
-.npmrc
+.pnpm-debug.log
 
 .env
 
-/dist/
 /temp/
