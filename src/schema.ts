@@ -18,21 +18,24 @@ export const ERROR_RESPONSE = {
     },
   },
   required: ["message"],
-  additionalProperties: false,
 } as const;
 
-interface SchemaOutput<Input extends SchemaInput> extends FastifySchema {
-  body: Input["body"];
-  params: Input["params"] extends undefined
+type ToSchema<T extends Record<string, unknown> | undefined> =
+  T extends undefined
     ? undefined
     : {
         type: "object";
-        properties: Input["params"];
-        required: Union.ListOf<keyof Input["params"]>;
+        properties: T;
+        required: Union.ListOf<keyof T>;
       };
+
+interface SchemaOutput<Input extends SchemaInput> extends FastifySchema {
+  body: Input["body"];
+  params: ToSchema<Input["params"]>;
   response: {
     default: Input["response"];
     "4xx": typeof ERROR_RESPONSE;
+    500: typeof ERROR_RESPONSE;
   };
 }
 
@@ -49,6 +52,7 @@ export function createSchema<T extends SchemaInput>(input: T): SchemaOutput<T> {
     response: {
       default: input.response,
       "4xx": ERROR_RESPONSE,
+      500: ERROR_RESPONSE,
     },
   };
 }

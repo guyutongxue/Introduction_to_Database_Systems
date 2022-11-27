@@ -53,6 +53,8 @@ function toSql(table, keys, size, generator) {
             } else {
               return `'${v}'`;
             }
+          } else if (v === null) {
+            return `NULL`;
           } else {
             throw new Error(`Unknown type ${v}, translating key "${k}" of table "${table}"`);
           }
@@ -204,19 +206,20 @@ function createOrder() {
     max: SHOP_NUM,
   });
   orderShopMap.push(shopId);
+  const state = Math.random() > 0.2 ? 5 : faker.helpers.arrayElement([0, 1, 2, 3, 4, 6]);
   return {
     cust_id: faker.datatype.number({
       min: 1,
       max: CUSTOMER_NUM,
     }),
     shop_id: shopId,
-    cour_id: faker.datatype.number({
+    cour_id: state === 0 ? null : faker.datatype.number({
       min: 1,
       max: COURIER_NUM,
     }),
     order_begin_time: faker.date.recent(60),
-    order_state:
-      Math.random() > 0.2 ? 5 : faker.helpers.arrayElement([0, 1, 2, 3, 4, 6]),
+    order_state: state
+      ,
   };
 }
 const ORDER_KEYS = [

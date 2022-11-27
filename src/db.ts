@@ -13,7 +13,7 @@ const pool = new PG.Pool({
 
 export async function query<R extends QueryResultRow = Record<string, unknown>>(
   text: string,
-  param: string[] = []
+  param: unknown[] = []
 ) {
   return pool.query<R>(text, param);
 }

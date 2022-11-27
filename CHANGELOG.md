@@ -23,3 +23,7 @@
 - `/user/login`
 - `/user/info/:role`
 
+## 11.27
+
+- 郭：API 设计初版
+- 

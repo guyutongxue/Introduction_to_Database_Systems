@@ -4,6 +4,8 @@ import md5 from "md5";
 import { JsonSchemaToTsProvider } from "@fastify/type-provider-json-schema-to-ts";
 import { query } from "./db";
 import { createSchema } from "./schema";
+import { J_SCHEMA_SHOP } from "./schema_def";
+import { SqlCourier, SqlCustomer, SqlShop } from "./sql_type";
 
 const SCHEMA_LOGIN = createSchema({
   body: {
@@ -90,30 +92,7 @@ const SCHEMA_INFO = createSchema({
         required: ["cust_id", "cust_name", "cust_phone"],
         additionalProperties: false,
       },
-      {
-        type: "object",
-        properties: {
-          shop_id: {
-            type: "number",
-          },
-          shop_name: {
-            type: "string",
-          },
-          shop_location: {
-            type: "string",
-          },
-          shop_phone: {
-            type: "string",
-          },
-          delivery_range: {
-            type: "string",
-          },
-          business_status: {
-            type: "number",
-          },
-        },
-        required: ["shop_id", "shop_name", "shop_phone", "business_status"],
-      },
+      J_SCHEMA_SHOP,
       {
         type: "object",
         properties: {
@@ -154,6 +133,7 @@ const SCHEMA_INFO = createSchema({
           },
         },
         required: ["admin"],
+        additionalProperties: false,
       },
     ],
   },
@@ -161,42 +141,12 @@ const SCHEMA_INFO = createSchema({
 const SQL_SELECT_CUST = `SELECT * FROM
     customer
     WHERE cust_phone = $1`;
-type SqlCustInfoResult = {
-  cust_id: number;
-  cust_name: string;
-  id: string | null;
-  cust_birth: Date | null;
-  cust_gender: number | null;
-  cust_phone: string;
-  cust_email: string | null;
-  cust_account: string | null;
-  cust_password: string;
-};
 const SQL_SELECT_SHOP = `SELECT * FROM
     shop
     WHERE shop_phone = $1`;
-type SqlShopInfoResult = {
-  shop_id: number;
-  shop_name: string;
-  shop_password: string;
-  shop_location: string | null;
-  shop_phone: string;
-  delivery_range: string | null;
-  business_status: number;
-};
 const SQL_SELECT_COUR = `SELECT * FROM
     courier
     WHERE cour_phone = $1`;
-type SqlCourResult = {
-  cour_id: number;
-  cour_name: string;
-  cour_password: string;
-  cour_phone: string;
-  cour_living: string | null;
-  cour_onboarding_time: Date;
-  cour_temperature: number | null;
-  cour_covid: Date | null;
-};
 
 export default fp(async function (ins) {
   const fastify = ins.withTypeProvider<JsonSchemaToTsProvider>();
@@ -210,7 +160,7 @@ export default fp(async function (ins) {
       if (phone === env.ADMIN_PHONE) {
         if (password === env.ADMIN_PASSWORD) {
           return {
-            token: fastify.signJwt(phone),
+            token: fastify.signJwt(phone, "admin"),
             role: "admin" as const,
           };
         } else {
@@ -236,9 +186,10 @@ export default fp(async function (ins) {
         });
         return;
       }
+      const role = rows[0].role;
       return {
-        token: fastify.signJwt(phone),
-        role: rows[0].role,
+        token: fastify.signJwt(phone, role),
+        role,
       };
     }
   );
@@ -252,7 +203,7 @@ export default fp(async function (ins) {
       const { role } = req.params;
       const { phone } = req.user;
       if (role === "customer") {
-        const { rows, rowCount } = await query<SqlCustInfoResult>(
+        const { rows, rowCount } = await query<SqlCustomer>(
           SQL_SELECT_CUST,
           [phone]
         );
@@ -283,7 +234,7 @@ export default fp(async function (ins) {
           cust_email: cust_email ?? undefined,
         };
       } else if (role === "shop") {
-        const { rows, rowCount } = await query<SqlShopInfoResult>(
+        const { rows, rowCount } = await query<SqlShop>(
           SQL_SELECT_SHOP,
           [phone]
         );
@@ -310,7 +261,7 @@ export default fp(async function (ins) {
           business_status,
         };
       } else if (role === "courier") {
-        const { rows, rowCount } = await query<SqlCourResult>(SQL_SELECT_COUR, [
+        const { rows, rowCount } = await query<SqlCourier>(SQL_SELECT_COUR, [
           phone,
         ]);
         if (!rowCount) {

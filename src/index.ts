@@ -2,6 +2,7 @@ import { env } from "node:process";
 import Fastify from "fastify";
 import auth from "./auth";
 import user from "./user";
+import customer from "./customer";
 
 const PORT = Number(env.PORT ?? 3000);
 const HOST = env.HOST ?? "0.0.0.0";
@@ -12,6 +13,7 @@ const fastify = Fastify({
 
 await fastify.register(auth);
 await fastify.register(user);
+await fastify.register(customer);
 
 fastify.get("/", async (req, rep) => {
   rep

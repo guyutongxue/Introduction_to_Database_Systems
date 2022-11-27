@@ -35,9 +35,9 @@ CREATE TABLE orders (
     order_id SERIAL PRIMARY KEY,
     cust_id INTEGER NOT NULL REFERENCES customer,
     shop_id INTEGER NOT NULL REFERENCES shop,
-    cour_id INTEGER NOT NULL REFERENCES courier,
-    order_begin_time TIMESTAMPTZ NOT NULL,
-    order_state SMALLINT NOT NULL
+    cour_id INTEGER REFERENCES courier,
+    order_begin_time TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    order_state SMALLINT NOT NULL DEFAULT 0
 );
 
 CREATE TABLE dish (
