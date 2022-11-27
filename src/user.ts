@@ -4,8 +4,8 @@ import md5 from "md5";
 import { JsonSchemaToTsProvider } from "@fastify/type-provider-json-schema-to-ts";
 import { query } from "./db";
 import { createSchema } from "./schema";
-import { J_SCHEMA_SHOP } from "./schema_def";
-import { SqlCourier, SqlCustomer, SqlShop } from "./sql_type";
+import { J_SCHEMA_SHOP, J_SCHEMA_SUCCESS } from "./schema_def";
+import { sql2Reply, SqlCourier, SqlCustomer, SqlShop } from "./sql_type";
 
 const SCHEMA_LOGIN = createSchema({
   body: {
@@ -37,15 +37,6 @@ const SCHEMA_LOGIN = createSchema({
   },
 } as const);
 
-const SQL_SELECT_USER = `SELECT * FROM
-    (
-        (SELECT cust_phone AS phone, cust_password AS password, 'customer' AS role FROM customer)
-        UNION
-        (SELECT cour_phone AS phone, cour_password AS password, 'courier' AS role FROM courier)
-        UNION
-        (SELECT shop_phone AS phone, shop_password AS password, 'shop' AS role FROM shop)
-    ) AS users
-    WHERE phone = $1`;
 type SqlSelectUserResult = {
   phone: string;
   password: string;
@@ -53,12 +44,6 @@ type SqlSelectUserResult = {
 };
 
 const SCHEMA_INFO = createSchema({
-  params: {
-    role: {
-      type: "string",
-      enum: ["customer", "shop", "courier", "admin"],
-    },
-  },
   response: {
     oneOf: [
       {
@@ -124,6 +109,7 @@ const SCHEMA_INFO = createSchema({
           "cour_phone",
           "cour_onboarding_time",
         ],
+        additionalProperties: false,
       },
       {
         type: "object",
@@ -138,15 +124,74 @@ const SCHEMA_INFO = createSchema({
     ],
   },
 } as const);
-const SQL_SELECT_CUST = `SELECT * FROM
-    customer
-    WHERE cust_phone = $1`;
-const SQL_SELECT_SHOP = `SELECT * FROM
-    shop
-    WHERE shop_phone = $1`;
-const SQL_SELECT_COUR = `SELECT * FROM
-    courier
-    WHERE cour_phone = $1`;
+
+const SCHEMA_UPDATE_INFO = createSchema({
+  body: {
+    anyOf: [
+      {
+        type: "object",
+        properties: {
+          id: {
+            type: "string",
+          },
+          cust_birth: {
+            type: "string"
+          },
+          cust_gender: {
+            type: "number"
+          },
+          cust_email: {
+            type: "string",
+          },
+          cust_account: {
+            type: "string",
+          },
+          cust_password: {
+            type: "string",
+          },
+        },
+        additionalProperties: false,
+      },
+      {
+        type: "object",
+        properties: {
+          shop_name: {
+            type: "string",
+          },
+          shop_password: {
+            type: "string",
+          },
+          shop_location: {
+            type: "string",
+          },
+          delivery_range: {
+            type: "string",
+          },
+          business_status: {
+            type: "number",
+          },
+        },
+        additionalProperties: false,
+      },
+      {
+        type: "object",
+        properties: {
+          cour_name: {
+            type: "string",
+          },
+          cour_living: {
+            type: "string",
+          },
+          cour_onboarding_time: {
+            type: "string",
+          },
+        },
+        additionalProperties: false,
+      },
+    ],
+  },
+  response: J_SCHEMA_SUCCESS,
+} as const);
 
 export default fp(async function (ins) {
   const fastify = ins.withTypeProvider<JsonSchemaToTsProvider>();
@@ -171,7 +216,15 @@ export default fp(async function (ins) {
         }
       }
       const { rows, rowCount } = await query<SqlSelectUserResult>(
-        SQL_SELECT_USER,
+        `SELECT * FROM
+    (
+        (SELECT cust_phone AS phone, cust_password AS password, 'customer' AS role FROM customer)
+        UNION
+        (SELECT cour_phone AS phone, cour_password AS password, 'courier' AS role FROM courier)
+        UNION
+        (SELECT shop_phone AS phone, shop_password AS password, 'shop' AS role FROM shop)
+    ) AS users
+    WHERE phone = $1`,
         [phone]
       );
       if (!rowCount) {
@@ -194,17 +247,18 @@ export default fp(async function (ins) {
     }
   );
   fastify.get(
-    "/user/info/:role",
+    "/user/info",
     {
       schema: SCHEMA_INFO,
       preHandler: [fastify.verifyJwt],
     },
     async (req, rep) => {
-      const { role } = req.params;
-      const { phone } = req.user;
+      const { phone, role } = req.user;
       if (role === "customer") {
         const { rows, rowCount } = await query<SqlCustomer>(
-          SQL_SELECT_CUST,
+          `SELECT cust_id, cust_name, id, cust_birth, cust_gender, cust_phone, cust_email, cust_account
+    FROM customer
+    WHERE cust_phone = $1`,
           [phone]
         );
         if (!rowCount) {
@@ -213,29 +267,12 @@ export default fp(async function (ins) {
           });
           return;
         }
-        const {
-          cust_id,
-          cust_name,
-          id,
-          cust_birth,
-          cust_gender,
-          cust_phone,
-          cust_email,
-          cust_account,
-        } = rows[0];
-        return {
-          cust_id,
-          cust_name,
-          id: id ?? undefined,
-          cust_birth: cust_birth?.toISOString() ?? undefined,
-          cust_gender: cust_gender ?? undefined,
-          cust_phone,
-          cust_account: cust_account ?? undefined,
-          cust_email: cust_email ?? undefined,
-        };
+        return sql2Reply(rows[0]);
       } else if (role === "shop") {
         const { rows, rowCount } = await query<SqlShop>(
-          SQL_SELECT_SHOP,
+          `SELECT shop_id, shop_name, shop_location, shop_phone, delivery_range, business_status
+    FROM shop
+    WHERE shop_phone = $1`,
           [phone]
         );
         if (!rowCount) {
@@ -244,55 +281,66 @@ export default fp(async function (ins) {
           });
           return;
         }
-        const {
-          shop_id,
-          shop_name,
-          shop_location,
-          shop_phone,
-          delivery_range,
-          business_status,
-        } = rows[0];
-        return {
-          shop_id,
-          shop_name,
-          shop_location: shop_location ?? undefined,
-          shop_phone,
-          delivery_range: delivery_range ?? undefined,
-          business_status,
-        };
+        return sql2Reply(rows[0]);
       } else if (role === "courier") {
-        const { rows, rowCount } = await query<SqlCourier>(SQL_SELECT_COUR, [
-          phone,
-        ]);
+        const { rows, rowCount } = await query<SqlCourier>(
+          `SELECT cour_id, cour_name, cour_phone, cour_living, cour_temperature, cour_covid
+    FROM courier
+    WHERE cour_phone = $1`,
+          [phone]
+        );
         if (!rowCount) {
           rep.code(404).send({
             message: "User not found.",
           });
           return;
         }
-        const {
-          cour_id,
-          cour_name,
-          cour_phone,
-          cour_living,
-          cour_onboarding_time,
-          cour_temperature,
-          cour_covid,
-        } = rows[0];
-        return {
-          cour_id,
-          cour_name,
-          cour_phone,
-          cour_living: cour_living ?? undefined,
-          cour_onboarding_time: cour_onboarding_time.toISOString(),
-          cour_temperature: cour_temperature ?? undefined,
-          cour_covid: cour_covid?.toISOString() ?? undefined,
-        };
+        return sql2Reply(rows[0]);
       } else {
         return {
           admin: true as const,
         };
       }
+    }
+  );
+  fastify.post(
+    "/user/info",
+    {
+      schema: SCHEMA_UPDATE_INFO,
+      preHandler: [fastify.verifyJwt],
+    },
+    async (req, rep) => {
+      const { phone, role } = req.user;
+      const phoneCol = role.substring(0, 4) + "_phone";
+      const passwordCol = role.substring(0, 4) + "_password";
+      let sql = `UPDATE ${role}\n`;
+      let argIndex = 1;
+      const args = [];
+      for (const [k, v] of Object.entries(req.body)) {
+        if (!v) continue;
+        if (role === "customer" && ["cust_name", "id", "cust_birth", "cust_gender"].includes(k)) {
+          sql += `    SET ${k} = COALESCE(${k}, $${argIndex++})\n`;
+        } else {
+          sql += `    SET ${k} = $${argIndex++}`;
+        }
+        if (k === passwordCol) {
+          args.push(md5(v as string));
+        } else {
+          args.push(v);
+        }
+      }
+      if (args.length === 0) {
+        return rep.code(401).send({
+          message: "No updated field."
+        });
+      }
+      sql += `    WHERE ${phoneCol} = $${argIndex++}`;
+      args.push(phone);
+      console.log(sql);
+      await query(sql, args);
+      return {
+        success: true as const
+      };
     }
   );
 });

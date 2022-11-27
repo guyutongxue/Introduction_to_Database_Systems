@@ -26,7 +26,7 @@ CREATE TABLE courier (
     cour_password TEXT NOT NULL,
     cour_phone TEXT UNIQUE NOT NULL,
     cour_living TEXT, -- 家庭地址
-    cour_onboarding_time DATE NOT NULL,
+    cour_onboarding_time DATE NOT NULL DEFAULT NOW(),
     cour_temperature REAL,
     cour_COVID DATE
 );

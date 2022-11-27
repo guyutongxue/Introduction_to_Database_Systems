@@ -21,9 +21,14 @@
 - 郭：提供模拟数据来源
 - 全部模拟数据生成
 - `/user/login`
-- `/user/info/:role`
+- `/user/info`
 
 ## 11.27
 
-- 郭：API 设计初版
-- 
+- 郭：API 设计（顾客）初版
+- `/customer/shops`
+- `/shop/:id/dishes`
+- `/customer/car` GET & POST
+- `/user/info` POST
+
+
