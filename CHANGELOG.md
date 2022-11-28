@@ -30,5 +30,5 @@
 - `/shop/:id/dishes`
 - `/customer/car` GET & POST
 - `/user/info` POST
-
+- +前端，调整为 monorepo
 

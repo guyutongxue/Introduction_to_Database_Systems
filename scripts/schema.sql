@@ -2,7 +2,7 @@ CREATE TABLE customer (
     cust_id SERIAL PRIMARY KEY,
     cust_name TEXT NOT NULL,
     id CHARACTER(18), -- 身份证号
-    cust_birth DATE,
+    cust_birth TIMESTAMPTZ,
     cust_gender SMALLINT,
     cust_phone TEXT UNIQUE NOT NULL,
     cust_email TEXT,
@@ -26,9 +26,9 @@ CREATE TABLE courier (
     cour_password TEXT NOT NULL,
     cour_phone TEXT UNIQUE NOT NULL,
     cour_living TEXT, -- 家庭地址
-    cour_onboarding_time DATE NOT NULL DEFAULT NOW(),
+    cour_onboarding_time TIMESTAMPTZ NOT NULL DEFAULT NOW(),
     cour_temperature REAL,
-    cour_COVID DATE
+    cour_COVID TIMESTAMPTZ
 );
 
 CREATE TABLE orders (

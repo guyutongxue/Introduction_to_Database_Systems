@@ -4,7 +4,11 @@ import md5 from "md5";
 import { JsonSchemaToTsProvider } from "@fastify/type-provider-json-schema-to-ts";
 import { query } from "./db";
 import { createSchema } from "./schema";
-import { J_SCHEMA_SHOP, J_SCHEMA_SUCCESS } from "./schema_def";
+import {
+  J_SCHEMA_COURIER,
+  J_SCHEMA_SHOP,
+  J_SCHEMA_SUCCESS,
+} from "./schema_def";
 import { sql2Reply, SqlCourier, SqlCustomer, SqlShop } from "./sql_type";
 
 const SCHEMA_LOGIN = createSchema({
@@ -38,6 +42,7 @@ const SCHEMA_LOGIN = createSchema({
 } as const);
 
 type SqlSelectUserResult = {
+  id: number;
   phone: string;
   password: string;
   role: "customer" | "courier" | "shop";
@@ -78,39 +83,7 @@ const SCHEMA_INFO = createSchema({
         additionalProperties: false,
       },
       J_SCHEMA_SHOP,
-      {
-        type: "object",
-        properties: {
-          cour_id: {
-            type: "number",
-          },
-          cour_name: {
-            type: "string",
-          },
-          cour_phone: {
-            type: "string",
-          },
-          cour_living: {
-            type: "string",
-          },
-          cour_onboarding_time: {
-            type: "string",
-          },
-          cour_temperature: {
-            type: "number",
-          },
-          cour_covid: {
-            type: "string",
-          },
-        },
-        required: [
-          "cour_id",
-          "cour_name",
-          "cour_phone",
-          "cour_onboarding_time",
-        ],
-        additionalProperties: false,
-      },
+      J_SCHEMA_COURIER,
       {
         type: "object",
         properties: {
@@ -135,10 +108,10 @@ const SCHEMA_UPDATE_INFO = createSchema({
             type: "string",
           },
           cust_birth: {
-            type: "string"
+            type: "string",
           },
           cust_gender: {
-            type: "number"
+            type: "number",
           },
           cust_email: {
             type: "string",
@@ -205,43 +178,54 @@ export default fp(async function (ins) {
       if (phone === env.ADMIN_PHONE) {
         if (password === env.ADMIN_PASSWORD) {
           return {
-            token: fastify.signJwt(phone, "admin"),
+            token: fastify.signJwt(0, "admin"),
             role: "admin" as const,
           };
         } else {
-          rep.code(401).send({
+          return rep.code(401).send({
             message: "Wrong password.",
           });
-          return;
         }
       }
       const { rows, rowCount } = await query<SqlSelectUserResult>(
-        `SELECT * FROM
+        `
+SELECT * FROM
     (
-        (SELECT cust_phone AS phone, cust_password AS password, 'customer' AS role FROM customer)
-        UNION
-        (SELECT cour_phone AS phone, cour_password AS password, 'courier' AS role FROM courier)
-        UNION
-        (SELECT shop_phone AS phone, shop_password AS password, 'shop' AS role FROM shop)
+        (SELECT
+            cust_id AS id,
+            cust_phone AS phone,
+            cust_password AS password,
+            'customer' AS role 
+            FROM customer
+        ) UNION (SELECT
+            cour_id AS id,
+            cour_phone AS phone,
+            cour_password AS password,
+            'courier' AS role
+            FROM courier
+        ) UNION (SELECT
+            shop_id AS id,
+            shop_phone AS phone,
+            shop_password AS password,
+            'shop' AS role FROM shop
+        )
     ) AS users
     WHERE phone = $1`,
         [phone]
       );
       if (!rowCount) {
-        rep.code(401).send({
+        return rep.code(401).send({
           message: "Account not exists.",
         });
-        return;
       }
-      if (md5(password) !== rows[0].password) {
-        rep.code(401).send({
+      const { id, role, password: encPass } = rows[0];
+      if (md5(password) !== encPass) {
+        return rep.code(401).send({
           message: "Wrong password.",
         });
-        return;
       }
-      const role = rows[0].role;
       return {
-        token: fastify.signJwt(phone, role),
+        token: fastify.signJwt(id, role),
         role,
       };
     }
@@ -253,47 +237,46 @@ export default fp(async function (ins) {
       preHandler: [fastify.verifyJwt],
     },
     async (req, rep) => {
-      const { phone, role } = req.user;
+      const { id, role } = req.user;
       if (role === "customer") {
         const { rows, rowCount } = await query<SqlCustomer>(
-          `SELECT cust_id, cust_name, id, cust_birth, cust_gender, cust_phone, cust_email, cust_account
+          `
+SELECT cust_id, cust_name, id, cust_birth, cust_gender, cust_phone, cust_email, cust_account
     FROM customer
-    WHERE cust_phone = $1`,
-          [phone]
+    WHERE cust_id = $1`,
+          [id]
         );
         if (!rowCount) {
-          rep.code(404).send({
+          return rep.code(404).send({
             message: "User not found.",
           });
-          return;
         }
         return sql2Reply(rows[0]);
       } else if (role === "shop") {
         const { rows, rowCount } = await query<SqlShop>(
-          `SELECT shop_id, shop_name, shop_location, shop_phone, delivery_range, business_status
+          `
+SELECT shop_id, shop_name, shop_location, shop_phone, delivery_range, business_status
     FROM shop
-    WHERE shop_phone = $1`,
-          [phone]
+    WHERE shop_id = $1`,
+          [id]
         );
         if (!rowCount) {
-          rep.code(404).send({
+          return rep.code(404).send({
             message: "User not found.",
           });
-          return;
         }
         return sql2Reply(rows[0]);
       } else if (role === "courier") {
         const { rows, rowCount } = await query<SqlCourier>(
           `SELECT cour_id, cour_name, cour_phone, cour_living, cour_temperature, cour_covid
     FROM courier
-    WHERE cour_phone = $1`,
-          [phone]
+    WHERE cour_id = $1`,
+          [id]
         );
         if (!rowCount) {
-          rep.code(404).send({
+          return rep.code(404).send({
             message: "User not found.",
           });
-          return;
         }
         return sql2Reply(rows[0]);
       } else {
@@ -310,36 +293,41 @@ export default fp(async function (ins) {
       preHandler: [fastify.verifyJwt],
     },
     async (req, rep) => {
-      const { phone, role } = req.user;
-      const phoneCol = role.substring(0, 4) + "_phone";
+      const { id, role } = req.user;
+      const idCol = role.substring(0, 4) + "_id";
       const passwordCol = role.substring(0, 4) + "_password";
       let sql = `UPDATE ${role}\n`;
       let argIndex = 1;
       const args = [];
       for (const [k, v] of Object.entries(req.body)) {
         if (!v) continue;
-        if (role === "customer" && ["cust_name", "id", "cust_birth", "cust_gender"].includes(k)) {
+        if (
+          role === "customer" &&
+          ["cust_name", "id", "cust_birth", "cust_gender"].includes(k)
+        ) {
           sql += `    SET ${k} = COALESCE(${k}, $${argIndex++})\n`;
         } else {
           sql += `    SET ${k} = $${argIndex++}`;
         }
         if (k === passwordCol) {
           args.push(md5(v as string));
+        } else if (["cust_birth", "cour_onboarding_time"].includes(k)) {
+          args.push(new Date(v));
         } else {
           args.push(v);
         }
       }
       if (args.length === 0) {
         return rep.code(401).send({
-          message: "No updated field."
+          message: "No updated field.",
         });
       }
-      sql += `    WHERE ${phoneCol} = $${argIndex++}`;
-      args.push(phone);
+      sql += `    WHERE ${idCol} = $${argIndex++}`;
+      args.push(id);
       console.log(sql);
       await query(sql, args);
       return {
-        success: true as const
+        success: true as const,
       };
     }
   );

@@ -14,8 +14,8 @@ async function verifyJwt(req: FastifyRequest, rep: FastifyReply) {
 
 export default fp(async function (fastify) {
   fastify.decorate("verifyJwt", verifyJwt);
-  fastify.decorate("signJwt", (phone: string, role: Role) => {
-    return fastify.jwt.sign({ phone, role });
+  fastify.decorate("signJwt", (id: number, role: Role) => {
+    return fastify.jwt.sign({ id, role });
   });
   await fastify.register(fastifyJwt, {
     secret: env.JWT_SECRET ?? "",

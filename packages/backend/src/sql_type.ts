@@ -36,7 +36,14 @@ export interface SqlDish {
   dish_score: number | null;
   dish_sales: number;
 }
-export interface SqlOrder {}
+export interface SqlOrder {
+  order_id: number;
+  cust_id: number;
+  shop_id: number;
+  cour_id: number | null;
+  order_begin_time: Date;
+  order_state: number;
+}
 
 type EraseDate<T> = T extends Date ? string : T;
 type SqlToReply<T extends object> = {
