@@ -18,11 +18,9 @@
     "json-schema-to-ts": "^2.6.1",
     "lodash-es": "^4.17.21",
     "md5": "^2.3.0",
-    "pg": "^8.8.0",
-    "pinyin": "3.0.0-alpha.5"
+    "pg": "^8.8.0"
   },
   "devDependencies": {
-    "@faker-js/faker": "^7.6.0",
     "@rollup/plugin-terser": "^0.1.0",
     "@rollup/plugin-typescript": "^9.0.2",
     "@types/lodash-es": "^4.17.6",
@@ -32,7 +30,6 @@
     "@typescript-eslint/parser": "^5.44.0",
     "eslint": "^8.28.0",
     "eslint-plugin-only-warn": "^1.0.3",
-    "moment": "^2.29.4",
     "nodemon": "^2.0.20",
     "rollup": "^3.5.0",
     "rollup-plugin-auto-external": "^2.0.0",

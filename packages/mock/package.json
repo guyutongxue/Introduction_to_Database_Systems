@@ -1,0 +1,18 @@
+{
+  "name": "mock",
+  "version": "0.0.0",
+  "module": "index.mjs",
+  "scripts": {
+    "mock": "node index.mjs"
+  },
+  "dependencies": {
+    "moment": "^2.29.4",
+    "@faker-js/faker": "^7.6.0",
+    "md5": "^2.3.0",
+    "lodash-es": "^4.17.21",
+    "pinyin": "3.0.0-alpha.5"
+  },
+  "devDependencies": {
+    "@types/md5": "^2.3.2"
+  }
+}

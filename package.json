@@ -1,5 +1,6 @@
 {
   "scripts": {
+    "mock": "pnpm --filter mock mock",
     "start": "pnpm --filter backend start:prod"
   }
 }

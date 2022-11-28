@@ -26,9 +26,16 @@
 ## 11.27
 
 - 郭：API 设计（顾客）初版
-- `/customer/shops`
+- `/shops`
 - `/shop/:id/dishes`
 - `/customer/car` GET & POST
 - `/user/info` POST
 - +前端，调整为 monorepo
 
+## 11.28
+- `/order` POST
+- `/orders`
+- `/order/:id/dishes`
+- `/shop/:id`
+- `/user/register`
+- 模拟数据加入 monorepo 包

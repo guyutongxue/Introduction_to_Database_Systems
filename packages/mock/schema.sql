@@ -36,6 +36,7 @@ CREATE TABLE orders (
     cust_id INTEGER NOT NULL REFERENCES customer,
     shop_id INTEGER NOT NULL REFERENCES shop,
     cour_id INTEGER REFERENCES courier,
+    order_value INTEGER NOT NULL,
     order_begin_time TIMESTAMPTZ NOT NULL DEFAULT NOW(),
     order_state SMALLINT NOT NULL DEFAULT 0
 );

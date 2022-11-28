@@ -11,6 +11,21 @@ import {
 } from "./schema_def";
 import { sql2Reply, SqlCourier, SqlCustomer, SqlShop } from "./sql_type";
 
+const J_SCHEMA_TOKEN = {
+  type: "object",
+  properties: {
+    token: {
+      type: "string",
+    },
+    role: {
+      type: "string",
+      enum: ["customer", "courier", "shop", "admin"],
+    },
+  },
+  required: ["token", "role"],
+  additionalProperties: false,
+} as const;
+
 const SCHEMA_LOGIN = createSchema({
   body: {
     type: "object",
@@ -25,20 +40,7 @@ const SCHEMA_LOGIN = createSchema({
     required: ["phone", "password"],
     additionalProperties: false,
   },
-  response: {
-    type: "object",
-    properties: {
-      token: {
-        type: "string",
-      },
-      role: {
-        type: "string",
-        enum: ["customer", "courier", "shop", "admin"],
-      },
-    },
-    required: ["token", "role"],
-    additionalProperties: false,
-  },
+  response: J_SCHEMA_TOKEN,
 } as const);
 
 type SqlSelectUserResult = {
@@ -54,30 +56,14 @@ const SCHEMA_INFO = createSchema({
       {
         type: "object",
         properties: {
-          cust_id: {
-            type: "number",
-          },
-          cust_name: {
-            type: "string",
-          },
-          id: {
-            type: "string",
-          },
-          cust_birth: {
-            type: "string",
-          },
-          cust_gender: {
-            type: "number",
-          },
-          cust_phone: {
-            type: "string",
-          },
-          cust_email: {
-            type: "string",
-          },
-          cust_account: {
-            type: "string",
-          },
+          cust_id: { type: "number" },
+          cust_name: { type: "string" },
+          id: { type: "string" },
+          cust_birth: { type: "string" },
+          cust_gender: { type: "number" },
+          cust_phone: { type: "string" },
+          cust_email: { type: "string" },
+          cust_account: { type: "string" },
         },
         required: ["cust_id", "cust_name", "cust_phone"],
         additionalProperties: false,
@@ -104,66 +90,56 @@ const SCHEMA_UPDATE_INFO = createSchema({
       {
         type: "object",
         properties: {
-          id: {
-            type: "string",
-          },
-          cust_birth: {
-            type: "string",
-          },
-          cust_gender: {
-            type: "number",
-          },
-          cust_email: {
-            type: "string",
-          },
-          cust_account: {
-            type: "string",
-          },
-          cust_password: {
-            type: "string",
-          },
+          id: { type: "string" },
+          cust_birth: { type: "string" },
+          cust_gender: { type: "number" },
+          cust_email: { type: "string" },
+          cust_account: { type: "string" },
+          cust_password: { type: "string" },
         },
         additionalProperties: false,
       },
       {
         type: "object",
         properties: {
-          shop_name: {
-            type: "string",
-          },
-          shop_password: {
-            type: "string",
-          },
-          shop_location: {
-            type: "string",
-          },
-          delivery_range: {
-            type: "string",
-          },
-          business_status: {
-            type: "number",
-          },
+          shop_name: { type: "string" },
+          shop_password: { type: "string" },
+          shop_location: { type: "string" },
+          delivery_range: { type: "string" },
+          business_status: { type: "number" },
         },
         additionalProperties: false,
       },
       {
         type: "object",
         properties: {
-          cour_name: {
-            type: "string",
-          },
-          cour_living: {
-            type: "string",
-          },
-          cour_onboarding_time: {
-            type: "string",
-          },
+          cour_name: { type: "string" },
+          cour_living: { type: "string" },
+          cour_onboarding_time: { type: "string" },
         },
         additionalProperties: false,
       },
     ],
   },
   response: J_SCHEMA_SUCCESS,
+} as const);
+
+const SCHEMA_REGISTER = createSchema({
+  body: {
+    type: "object",
+    properties: {
+      role: {
+        type: "string",
+        enum: ["customer", "shop", "courier"],
+      },
+      phone: { type: "string" },
+      password: { type: "string" },
+      name: { type: "string" },
+    },
+    required: ["role", "phone", "password", "name"],
+    additionalProperties: false,
+  },
+  response: J_SCHEMA_TOKEN,
 } as const);
 
 export default fp(async function (ins) {
@@ -328,6 +304,37 @@ SELECT shop_id, shop_name, shop_location, shop_phone, delivery_range, business_s
       await query(sql, args);
       return {
         success: true as const,
+      };
+    }
+  );
+  fastify.post(
+    "/user/register",
+    {
+      schema: SCHEMA_REGISTER,
+      preHandler: [fastify.verifyJwt],
+    },
+    async (req, rep) => {
+      if (req.user.role !== "admin") {
+        return rep.code(401).send({
+          message: "Only administrators can register user now.",
+        });
+      }
+      const { role, phone, password, name } = req.body;
+      const rolePrefix = role.substring(0, 4);
+      const idCol = rolePrefix + "_id";
+      const phoneCol = rolePrefix + "_phone";
+      const passwordCol = rolePrefix + "_password";
+      const nameCol = rolePrefix + "_name";
+      const { rows } = await query<Record<string, number>>(
+        `
+INSERT INTO ${role} (${nameCol}, ${phoneCol}, ${passwordCol})
+    VALUES ($1, $2, $3)
+    RETURNING ${idCol}`,
+        [name, phone, md5(password)]
+      );
+      return {
+        token: fastify.signJwt(rows[0][idCol], role),
+        role,
       };
     }
   );

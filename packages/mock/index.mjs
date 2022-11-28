@@ -56,7 +56,9 @@ function toSql(table, keys, size, generator) {
           } else if (v === null) {
             return `NULL`;
           } else {
-            throw new Error(`Unknown type ${v}, translating key "${k}" of table "${table}"`);
+            throw new Error(
+              `Unknown type ${v}, translating key "${k}" of table "${table}"`
+            );
           }
         })
         .join(", ")
@@ -206,26 +208,34 @@ function createOrder() {
     max: SHOP_NUM,
   });
   orderShopMap.push(shopId);
-  const state = Math.random() > 0.2 ? 5 : faker.helpers.arrayElement([0, 1, 2, 3, 4, 6]);
+  const state =
+    Math.random() > 0.2 ? 5 : faker.helpers.arrayElement([0, 1, 2, 3, 4, 6]);
   return {
     cust_id: faker.datatype.number({
       min: 1,
       max: CUSTOMER_NUM,
     }),
     shop_id: shopId,
-    cour_id: state === 0 ? null : faker.datatype.number({
-      min: 1,
-      max: COURIER_NUM,
+    cour_id:
+      state === 0
+        ? null
+        : faker.datatype.number({
+            min: 1,
+            max: COURIER_NUM,
+          }),
+    order_value: faker.datatype.number({
+      min: 2000,
+      max: 8000
     }),
     order_begin_time: faker.date.recent(60),
-    order_state: state
-      ,
+    order_state: state,
   };
 }
 const ORDER_KEYS = [
   "cust_id",
   "shop_id",
   "cour_id",
+  "order_value",
   "order_begin_time",
   "order_state",
 ];
@@ -260,7 +270,7 @@ for (let i = 1; i <= ORDER_NUM; i++) {
 }
 
 /** @type {Set<number>} */
-const allShoppingCar = new Set;
+const allShoppingCar = new Set();
 function createShoppingCar() {
   for (;;) {
     const dishId = faker.datatype.number({

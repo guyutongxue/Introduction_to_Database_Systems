@@ -13,7 +13,7 @@ services:
       - "5432:5432"
     volumes:
       - postgres:/data/postgres
-      - ./scripts/init.sql:/docker-entrypoint-initdb.d/init.sql
+      - ./packages/mock/init.sql:/docker-entrypoint-initdb.d/init.sql
 
   adminer:
     image: adminer

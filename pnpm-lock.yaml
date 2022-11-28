@@ -7,7 +7,6 @@ importers:
 
   packages/backend:
     specifiers:
-      '@faker-js/faker': ^7.6.0
       '@fastify/jwt': ^6.4.0
       '@fastify/static': ^6.5.1
       '@fastify/type-provider-json-schema-to-ts': ^2.1.1
@@ -26,10 +25,8 @@ importers:
       json-schema-to-ts: ^2.6.1
       lodash-es: ^4.17.21
       md5: ^2.3.0
-      moment: ^2.29.4
       nodemon: ^2.0.20
       pg: ^8.8.0
-      pinyin: 3.0.0-alpha.5
       rollup: ^3.5.0
       rollup-plugin-auto-external: ^2.0.0
       ts-json-schema-generator: ^1.1.2
@@ -45,11 +42,10 @@ importers:
       fastify: 4.10.0
       fastify-plugin: 4.3.0
       json-schema-to-ts: 2.6.1
+      lodash-es: 4.17.21
       md5: 2.3.0
       pg: 8.8.0
-      pinyin: 3.0.0-alpha.5
     devDependencies:
-      '@faker-js/faker': 7.6.0
       '@rollup/plugin-terser': 0.1.0_rollup@3.5.0
       '@rollup/plugin-typescript': 9.0.2_3qldpvhx2vwhgdtnpkk4u5tuly
       '@types/lodash-es': 4.17.6
@@ -59,8 +55,6 @@ importers:
       '@typescript-eslint/parser': 5.44.0_hsf322ms6xhhd4b5ne6lb74y4a
       eslint: 8.28.0
       eslint-plugin-only-warn: 1.0.3
-      lodash-es: 4.17.21
-      moment: 2.29.4
       nodemon: 2.0.20
       rollup: 3.5.0
       rollup-plugin-auto-external: 2.0.0_rollup@3.5.0
@@ -98,6 +92,23 @@ importers:
       typescript: 4.7.4
       vite: 3.2.4_@types+node@18.11.9
       vue-tsc: 1.0.9_typescript@4.7.4
+
+  packages/mock:
+    specifiers:
+      '@faker-js/faker': ^7.6.0
+      '@types/md5': ^2.3.2
+      lodash-es: ^4.17.21
+      md5: ^2.3.0
+      moment: ^2.29.4
+      pinyin: 3.0.0-alpha.5
+    dependencies:
+      '@faker-js/faker': 7.6.0
+      lodash-es: 4.17.21
+      md5: 2.3.0
+      moment: 2.29.4
+      pinyin: 3.0.0-alpha.5
+    devDependencies:
+      '@types/md5': 2.3.2
 
 packages:
 
@@ -208,7 +219,7 @@ packages:
   /@faker-js/faker/7.6.0:
     resolution: {integrity: sha512-XK6BTq1NDMo9Xqw/YkYyGjSsg44fbNwYRx7QK2CuoQgyy+f1rrTDHoExVM5PsyXCtfl2vs2vVJ0MN0yN6LppRw==}
     engines: {node: '>=14.0.0', npm: '>=6.0.0'}
-    dev: true
+    dev: false
 
   /@fastify/accept-negotiator/1.0.0:
     resolution: {integrity: sha512-4R/N2KfYeld7A5LGkai+iUFMahXcxxYbDp+XS2B1yuL3cdmZLJ9TlCnNzT3q5xFTqsYm0GPpinLUwfSwjcVjyA==}
@@ -2559,7 +2570,7 @@ packages:
 
   /lodash-es/4.17.21:
     resolution: {integrity: sha512-mKnC+QJ9pWVzv+C4/U3rRsHapFfHvQFoFB92e52xeyGMcX6/OlIl78je1u8vePzYZSkkogMPJ2yjxxsb89cxyw==}
-    dev: true
+    dev: false
 
   /lodash.merge/4.6.2:
     resolution: {integrity: sha512-0KpjqXRVvrYyCsX1swR/XTK0va6VQkQM6MNo7PqW77ByjAhoARA8EfrP1N4+KlKj8YS0ZUCtRT/YUuhyYDujIQ==}
@@ -2667,7 +2678,7 @@ packages:
 
   /moment/2.29.4:
     resolution: {integrity: sha512-5LC9SOxjSc2HF6vO2CyuTDNivEdoz2IvyJJGj6X8DJ0eFyfszE0QiEd+iXmBvUP3WHxSjFH/vIsA0EN00cgr8w==}
-    dev: true
+    dev: false
 
   /ms/2.0.0:
     resolution: {integrity: sha512-Tpp60P6IUJDTuOq/5Z8cdskzJujfwqfOTkrwIwj7IRISpnkJnT6SyJ4PCPnGMoFjC9ddhal5KVIYtAt97ix05A==}
