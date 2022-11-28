@@ -31,7 +31,10 @@ export default fp(async (inst) => {
       preHandler: [fastify.verifyJwt],
     },
     async () => {
-      const { rows } = await query<SqlShop>(`SELECT * FROM shop`);
+      const { rows } = await query<SqlShop>(`
+SELECT *
+    FROM shop
+    WHERE business_status = 1`);
       return rows.map(sql2Reply);
     }
   );

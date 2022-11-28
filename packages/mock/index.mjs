@@ -106,6 +106,9 @@ const CUSTOMER_KEYS = [
 const CUSTOMER_NUM = 50;
 toSql("customer", CUSTOMER_KEYS, CUSTOMER_NUM, createCustomer);
 
+// Add a dummy shop, for collecting "deleted" dishes
+emit(`INSERT INTO shop (shop_id, shop_name, shop_password, shop_phone, business_status) VALUES (0, 'DELETED', 'error', 'error', 0);\n`);
+
 function createShop() {
   const city = `${faker.address.state()}${faker.address.city()}`;
   return {

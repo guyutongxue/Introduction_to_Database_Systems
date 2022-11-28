@@ -49,19 +49,17 @@ export default fp(async (inst) => {
           message: "Only customer can submit an order.",
         });
       }
-      console.log(id);
       let result: QueryResult | undefined;
       await transaction(async (client) => {
         // Create a table storing each dish's shop
         await client.query(
           `
 CREATE TEMPORARY TABLE t
-    AS SELECT dish_id, car_num, shop_id
+    AS SELECT dish_id, dish_value, car_num, shop_id
         FROM shopping_car NATURAL JOIN dish
         WHERE cust_id = $1;`,
           [id]
         );
-        console.log("AAA");
 
         // Clear the shopping car
         await client.query(
@@ -70,7 +68,6 @@ DELETE FROM shopping_car
     WHERE cust_id = $1;`,
           [id]
         );
-        console.log("BBB");
 
         // Create orders and contain relations
         (result = await client.query(
