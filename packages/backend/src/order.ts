@@ -73,9 +73,12 @@ DELETE FROM shopping_car
         (result = await client.query(
           `
 WITH o AS (
-    INSERT INTO orders (cust_id, shop_id)
-        SELECT DISTINCT ${id}, shop_id FROM t
-        RETURNING order_id, shop_id)
+    INSERT INTO orders (cust_id, shop_id, order_value)
+        SELECT DISTINCT 51, shop_id, SUM(dish_value * car_num) as order_value
+            FROM t
+            GROUP BY shop_id
+        RETURNING order_id, shop_id
+)
 INSERT INTO contain (dish_id, order_id, contain_num)
     SELECT dish_id, order_id, car_num
         FROM t NATURAL JOIN o
