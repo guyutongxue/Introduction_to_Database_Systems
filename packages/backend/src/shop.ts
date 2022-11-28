@@ -2,7 +2,12 @@ import { JsonSchemaToTsProvider } from "@fastify/type-provider-json-schema-to-ts
 import fp from "fastify-plugin";
 import { query } from "./db";
 import { createSchema } from "./schema";
-import { J_SCHEMA_DISH, J_SCHEMA_SHOP, SCHEMA_DISH_LIST } from "./schema_def";
+import {
+  J_SCHEMA_DISH,
+  J_SCHEMA_SHOP,
+  J_SCHEMA_SUCCESS,
+  SCHEMA_DISH_LIST,
+} from "./schema_def";
 import { sql2Reply, SqlDish, SqlShop } from "./sql_type";
 
 const SCHEMA_SHOP_LIST = createSchema({
@@ -19,6 +24,49 @@ const SCHEMA_SHOP_GET = createSchema({
     },
   },
   response: J_SCHEMA_SHOP,
+} as const);
+
+const SCHEMA_DISH_POST = createSchema({
+  body: {
+    type: "object",
+    properties: {
+      dish_name: {
+        type: "string",
+      },
+      dish_value: {
+        type: "number",
+      },
+    },
+    required: ["dish_name", "dish_value"],
+    additionalProperties: false,
+  },
+  response: J_SCHEMA_SUCCESS,
+} as const);
+
+const SCHEMA_DISH_PUT = createSchema({
+  params: {
+    id: { type: "number" },
+  },
+  body: {
+    type: "object",
+    properties: {
+      dish_name: {
+        type: "string",
+      },
+      dish_value: {
+        type: "number",
+      },
+    },
+    additionalProperties: false,
+  },
+  response: J_SCHEMA_SUCCESS,
+} as const);
+
+const SCHEMA_DISH_DELETE = createSchema({
+  params: {
+    id: { type: "number" },
+  },
+  response: J_SCHEMA_SUCCESS,
 } as const);
 
 export default fp(async (inst) => {
@@ -71,6 +119,100 @@ SELECT *
         [id]
       );
       return rows.map(sql2Reply);
+    }
+  );
+  fastify.post(
+    "/shop/dish",
+    {
+      schema: SCHEMA_DISH_POST,
+      preHandler: [fastify.verifyJwt],
+    },
+    async (req, rep) => {
+      const { id: shop_id, role } = req.user;
+      const { dish_name, dish_value } = req.body;
+      if (role !== "shop") {
+        return rep.code(401).send({
+          message: "Only shop can add dishes.",
+        });
+      }
+      await query(
+        `
+INSERT INTO dish (shop_id, dish_name, dish_value)
+    VALUES ($1, $2, $3);`,
+        [shop_id, dish_name, dish_value]
+      );
+      return {
+        success: true as const,
+      };
+    }
+  );
+  fastify.put(
+    "/shop/dish/:id",
+    {
+      schema: SCHEMA_DISH_PUT,
+      preHandler: [fastify.verifyJwt],
+    },
+    async (req, rep) => {
+      const { id: dish_id } = req.params;
+      const { id: shop_id, role } = req.user;
+      const { dish_name, dish_value } = req.body;
+      if (role !== "shop") {
+        return rep.code(401).send({
+          message: "Only shop can modify dishes.",
+        });
+      }
+      let sql = `UPDATE dish\n`;
+      const args: unknown[] = [];
+      if (dish_name !== undefined) {
+        args.push(dish_name);
+        sql += `    SET dish_name = $${args.length}\n`;
+      }
+      if (dish_value !== undefined) {
+        args.push(dish_value);
+        sql += `    SET dish_value = $${args.length}\n`;
+      }
+      args.push(shop_id, dish_id);
+      sql += `    WHERE shop_id = $${args.length - 1} AND dish_id = $${
+        args.length
+      }`;
+      sql += `    RETURNING dish_id`;
+      const { rowCount } = await query(sql, args);
+      if (!rowCount) {
+        return rep.code(400).send({
+          message: "No dishes were updated. Maybe the dish_id is wrong.",
+        });
+      }
+      return {
+        success: true as const,
+      };
+    }
+  );
+  fastify.delete(
+    "/shop/dish/:id",
+    {
+      schema: SCHEMA_DISH_DELETE,
+      preHandler: [fastify.verifyJwt],
+    },
+    async (req, rep) => {
+      const { id: dish_id } = req.params;
+      const { id: shop_id, role } = req.user;
+      if (role !== "shop") {
+        return rep.code(401).send({
+          message: "Only shop can delete dishes.",
+        });
+      }
+      // Move dish to dummy shop No. 0
+      // prevent cascade-deletion problems
+      await query(
+        `
+UPDATE dish
+    SET shop_id = 0
+    WHERE shop_id = $1 AND dish_id = $2`,
+        [shop_id, dish_id]
+      );
+      return {
+        success: true as const,
+      };
     }
   );
 });

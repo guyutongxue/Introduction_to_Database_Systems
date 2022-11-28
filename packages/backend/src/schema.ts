@@ -27,6 +27,7 @@ type ToSchema<T extends Record<string, unknown> | undefined> =
         type: "object";
         properties: T;
         required: Union.ListOf<keyof T>;
+        additionalProperties: false;
       };
 
 interface SchemaOutput<Input extends SchemaInput> extends FastifySchema {
@@ -47,6 +48,7 @@ export function createSchema<T extends SchemaInput>(input: T): SchemaOutput<T> {
           type: "object",
           properties: input.params,
           required: Object.keys(input.params),
+          additionalProperties: false,
         }
       : undefined) as any,
     response: {

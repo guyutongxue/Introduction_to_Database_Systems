@@ -112,7 +112,7 @@ INSERT INTO contain (dish_id, order_id, contain_num)
     const { id } = req.params;
     const { id: userId, role } = req.user;
     let sql = `
-SELECT dish_id, shop_id, dish_name, dish_value, dish_score, dish_sales
+SELECT dish_id, shop_id, dish_name, dish_value, dish_sales
     FROM orders NATURAL JOIN contain NATURAL JOIN dish
     WHERE order_id = $1`;
     const args = [id, userId];

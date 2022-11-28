@@ -9,6 +9,7 @@
     "start:prod": "node dist/index.js"
   },
   "dependencies": {
+    "@fastify/cors": "^8.2.0",
     "@fastify/jwt": "^6.4.0",
     "@fastify/static": "^6.5.1",
     "@fastify/type-provider-json-schema-to-ts": "^2.1.1",

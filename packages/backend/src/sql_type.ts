@@ -33,7 +33,6 @@ export interface SqlDish {
   shop_id: number;
   dish_name: string;
   dish_value: number;
-  dish_score: number | null;
   dish_sales: number;
 }
 export interface SqlOrder {

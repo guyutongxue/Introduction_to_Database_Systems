@@ -7,6 +7,7 @@ import customer from "./customer";
 import frontend from "./frontend";
 import order from "./order";
 import shop from "./shop";
+import fastifyCors from "@fastify/cors";
 
 const PORT = Number(env.PORT ?? 3000);
 const HOST = env.HOST ?? "0.0.0.0";
@@ -15,11 +16,16 @@ const fastify = Fastify({
   logger: true,
 });
 
+await fastify.register(fastifyCors, {
+  origin: true
+});
+
 await fastify.register(auth);
 await fastify.register(user);
 await fastify.register(customer);
 await fastify.register(shop);
 await fastify.register(order);
+
 await fastify.register(frontend);
 
 await fastify.listen({

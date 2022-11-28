@@ -46,7 +46,6 @@ CREATE TABLE dish (
     shop_id INTEGER NOT NULL REFERENCES shop,
     dish_name TEXT NOT NULL,
     dish_value INTEGER NOT NULL,
-    dish_score INTEGER,
     dish_sales INTEGER NOT NULL DEFAULT 0
 );
 
