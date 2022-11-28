@@ -18,7 +18,10 @@ export async function query<R extends QueryResultRow = Record<string, unknown>>(
 export async function transaction(op: (client: PG.PoolClient) => Promise<void>) {
   const client = await pool.connect();
   await client.query("BEGIN;");
-  await op(client);
-  await client.query("COMMIT;");
+  try {
+    await op(client);
+  } finally {
+    await client.query("COMMIT;");
+  }
 }
 

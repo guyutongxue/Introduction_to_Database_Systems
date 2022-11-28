@@ -4,8 +4,11 @@ import _ from "lodash-es";
 import { QueryResult } from "pg";
 import { query, transaction } from "./db";
 import { createSchema } from "./schema";
-import { J_SCHEMA_COURIER, J_SCHEMA_DISH, J_SCHEMA_ORDER, J_SCHEMA_SHOP, SCHEMA_DISH_LIST, SCHEMA_ORDER_LIST } from "./schema_def";
-import { sql2Reply, SqlDish, SqlOrder, SqlShop } from "./sql_type";
+import {
+  SCHEMA_DISH_LIST,
+  SCHEMA_ORDER_LIST,
+} from "./schema_def";
+import { sql2Reply, SqlDish, SqlOrder } from "./sql_type";
 
 const SCHEMA_SUBMIT = createSchema({
   response: {
@@ -14,24 +17,6 @@ const SCHEMA_SUBMIT = createSchema({
       type: "number",
     },
   },
-} as const);
-
-const SCHEMA_ORDER_SHOP = createSchema({
-  params: {
-    id: {
-      type: "number"
-    }
-  },
-  response: J_SCHEMA_SHOP
-} as const);
-
-const SCHEMA_ORDER_COUR = createSchema({
-  params: {
-    id: {
-      type: "number"
-    }
-  },
-  response: J_SCHEMA_COURIER
 } as const);
 
 export default fp(async (inst) => {
@@ -74,7 +59,7 @@ DELETE FROM shopping_car
           `
 WITH o AS (
     INSERT INTO orders (cust_id, shop_id, order_value)
-        SELECT DISTINCT 51, shop_id, SUM(dish_value * car_num) as order_value
+        SELECT DISTINCT $1::integer, shop_id, SUM(dish_value * car_num) as order_value
             FROM t
             GROUP BY shop_id
         RETURNING order_id, shop_id
@@ -82,7 +67,7 @@ WITH o AS (
 INSERT INTO contain (dish_id, order_id, contain_num)
     SELECT dish_id, order_id, car_num
         FROM t NATURAL JOIN o
-    RETURNING order_id`));
+    RETURNING order_id`, [id]));
       });
       if (!result || !result.rowCount) {
         return rep.code(400).send({
@@ -93,39 +78,48 @@ INSERT INTO contain (dish_id, order_id, contain_num)
     }
   );
 
-  fastify.get("/orders", {
-    schema: SCHEMA_ORDER_LIST,
-    preHandler: [fastify.verifyJwt]
-  }, async (req) => {
-    const { id, role } = req.user;
-    if (role === "customer") {
-      const { rows } = await query<SqlOrder>(`SELECT * FROM orders WHERE cust_id = $1`, [id]);
+  fastify.get(
+    "/orders",
+    {
+      schema: SCHEMA_ORDER_LIST,
+      preHandler: [fastify.verifyJwt],
+    },
+    async (req) => {
+      const { id, role } = req.user;
+      const idCol = role.substring(0, 4) + "_id";
+      const { rows } = await query<SqlOrder>(
+        `SELECT * FROM orders WHERE ${idCol} = $1`,
+        [id]
+      );
       return rows.map(sql2Reply);
     }
-    throw new Error("not impl");
-  });
+  );
 
-  fastify.get("/order/:id/dishes", {
-    schema: SCHEMA_DISH_LIST,
-    preHandler: [fastify.verifyJwt]
-  }, async (req) => {
-    const { id } = req.params;
-    const { id: userId, role } = req.user;
-    let sql = `
+  fastify.get(
+    "/order/:id/dishes",
+    {
+      schema: SCHEMA_DISH_LIST,
+      preHandler: [fastify.verifyJwt],
+    },
+    async (req) => {
+      const { id } = req.params;
+      const { id: userId, role } = req.user;
+      let sql = `
 SELECT dish_id, shop_id, dish_name, dish_value, dish_sales
     FROM orders NATURAL JOIN contain NATURAL JOIN dish
     WHERE order_id = $1`;
-    const args = [id, userId];
-    if (role === "courier") {
-      sql += ` AND cour_id = $2`;
-    } else if (role === "customer") {
-      sql += ` AND cust_id = $2`;
-    } else if (role === "shop") {
-      sql += ` AND shop_id = $2`;
-    } else {
-      args.pop();
+      const args = [id, userId];
+      if (role === "courier") {
+        sql += ` AND cour_id = $2`;
+      } else if (role === "customer") {
+        sql += ` AND cust_id = $2`;
+      } else if (role === "shop") {
+        sql += ` AND shop_id = $2`;
+      } else {
+        args.pop();
+      }
+      const { rows } = await query<SqlDish>(sql, args);
+      return rows.map(sql2Reply);
     }
-    const { rows } = await query<SqlDish>(sql, args);
-    return rows.map(sql2Reply);
-  });
+  );
 });

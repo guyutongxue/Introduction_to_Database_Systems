@@ -39,3 +39,6 @@
 - `/shop/:id`
 - `/user/register`
 - 模拟数据加入 monorepo 包
+- `/shop/dish` POST
+- `/shop/dish/:id` PUT & DELETE
+- 前端：框架

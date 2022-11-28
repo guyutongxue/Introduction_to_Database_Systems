@@ -68,7 +68,6 @@ export default fp(async function (ins) {
           message: "Only customer can set shopping car.",
         });
       }
-      console.log(id);
       await transaction(async (client) => {
         await client.query(`DELETE FROM shopping_car WHERE cust_id = $1;`, [
           id,
@@ -109,7 +108,7 @@ INSERT INTO shopping_car (dish_id, cust_id, car_num)
       const { rows } = await query<SqlScGet>(
         `
 SELECT dish_id, dish_name, shop_id, shop_name, dish_value, car_num
-    FROM dish NATURAL JOIN shop NATURAL JOIN (
+    FROM shop NATURAL JOIN dish NATURAL JOIN (
         SELECT dish_id, car_num
             FROM shopping_car 
             WHERE cust_id = $1

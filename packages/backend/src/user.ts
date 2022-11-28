@@ -300,7 +300,6 @@ SELECT shop_id, shop_name, shop_location, shop_phone, delivery_range, business_s
       }
       sql += `    WHERE ${idCol} = $${argIndex++}`;
       args.push(id);
-      console.log(sql);
       await query(sql, args);
       return {
         success: true as const,
