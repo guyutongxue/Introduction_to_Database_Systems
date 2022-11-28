@@ -39,7 +39,7 @@ onMounted(async () => {
 
 <template>
   <VRow>
-    <VCol :cols="8">
+    <VCol :cols="12" :sm="8">
       <VCard title="浏览商家">
         <VContainer>
           <div v-for="shop of shops" :key="shop.shop_id">
@@ -48,7 +48,7 @@ onMounted(async () => {
         </VContainer>
       </VCard>
     </VCol>
-    <VCol :cols="4">
+    <VCol :sm="4">
       <VCard title="购物车">
         <VContainer>
           <div v-for="item of car" :key="item.dish_id">

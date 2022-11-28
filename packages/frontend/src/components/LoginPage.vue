@@ -38,7 +38,7 @@ function checkPassword(v: string) {
   <div class="flex flex-col justify-center items-center">
     <h1 class="text-h2 mb-16">数据库大作业</h1>
     <VForm v-model="form">
-      <VCard width="480px" title="登录">
+      <VCard class="sm:w-[480px] w-[100vw]" title="登录">
         <VCardText>
           <VTextField
             variant="underlined"
