@@ -175,13 +175,6 @@ function createDish() {
       min: 80,
       max: 5000,
     }),
-    dish_score: Math.round(
-      sales *
-        faker.datatype.float({
-          min: 3.0,
-          max: 5.0,
-        })
-    ),
     dish_sales: sales,
   };
 }
@@ -189,7 +182,6 @@ const DISH_KEYS = [
   "shop_id",
   "dish_name",
   "dish_value",
-  "dish_score",
   "dish_sales",
 ];
 const DISH_NUM = 200;

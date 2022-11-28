@@ -47,7 +47,6 @@ export type Dish = {
   shop_id: number;
   dish_name: string;
   dish_value: number;
-  dish_score?: number;
   dish_sales: number;
 };
 export type DishListRes = Dish[];

@@ -70,9 +70,6 @@ export const J_SCHEMA_DISH = {
     dish_value: {
       type: "number",
     },
-    dish_score: {
-      type: "number",
-    },
     dish_sales: {
       type: "number",
     },
