@@ -9,6 +9,10 @@ import * as components from "vuetify/components";
 import * as directives from "vuetify/directives";
 import axios from "axios";
 
+import dayjs from "dayjs";
+import "dayjs/locale/zh-cn";
+import relativeTime from "dayjs/plugin/relativeTime";
+
 const vuetify = createVuetify({
   components,
   directives,
@@ -22,5 +26,7 @@ axios.interceptors.request.use((config) => {
   }
   return config;
 });
+dayjs.extend(relativeTime);
+dayjs.locale("zh-cn");
 
 createApp(App).use(vuetify).mount("#app");

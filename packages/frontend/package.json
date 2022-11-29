@@ -13,6 +13,7 @@
   "dependencies": {
     "@mdi/font": "^7.0.96",
     "axios": "^1.2.0",
+    "dayjs": "^1.11.6",
     "lodash-es": "^4.17.21",
     "vue": "^3.2.45",
     "vuetify": "^3.0.1"

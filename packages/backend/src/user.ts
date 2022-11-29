@@ -63,7 +63,7 @@ const SCHEMA_INFO = createSchema({
           cust_gender: { type: "number" },
           cust_phone: { type: "string" },
           cust_email: { type: "string" },
-          cust_account: { type: "string" },
+          cust_address: { type: "string" },
         },
         required: ["cust_id", "cust_name", "cust_phone"],
         additionalProperties: false,
@@ -94,7 +94,7 @@ const SCHEMA_UPDATE_INFO = createSchema({
           cust_birth: { type: "string" },
           cust_gender: { type: "number" },
           cust_email: { type: "string" },
-          cust_account: { type: "string" },
+          cust_address: { type: "string" },
           cust_password: { type: "string" },
         },
         additionalProperties: false,
@@ -217,7 +217,7 @@ SELECT * FROM
       if (role === "customer") {
         const { rows, rowCount } = await query<SqlCustomer>(
           `
-SELECT cust_id, cust_name, id, cust_birth, cust_gender, cust_phone, cust_email, cust_account
+SELECT cust_id, cust_name, id, cust_birth, cust_gender, cust_phone, cust_email, cust_address
     FROM customer
     WHERE cust_id = $1`,
           [id]

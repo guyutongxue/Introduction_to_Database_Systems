@@ -9,6 +9,7 @@ import { HOST } from "@/config";
 import axios from "axios";
 import { computed, onMounted } from "vue";
 import DishList from "./DishList.vue";
+import OrderList from "./OrderList.vue";
 import _ from "lodash-es";
 
 defineProps<{
@@ -38,7 +39,7 @@ const filteredShops = computed(() =>
 );
 
 let isShowingShop = $ref(false);
-let showingShop  = $ref(shops[0]);
+let showingShop = $ref(shops[0]);
 function showShop(s: Shop) {
   showingShop = s;
   isShowingShop = true;
@@ -169,20 +170,16 @@ onMounted(async () => {
               个订单
             </span>
             <VSpacer></VSpacer>
-            <VBtn color="secondary" :disabled="!car.length" @click="submitOrder"
-              >结算</VBtn
+            <VBtn
+              color="secondary"
+              :disabled="!car.length"
+              @click="submitOrder"
             >
+              结算
+            </VBtn>
           </VCardActions>
         </VCard>
-        <VCard class="!overflow-auto" title="订单">
-          <VContainer>
-            <template v-for="item of orders" :key="item.order_id">
-              {{ item.shop_name }} - {{ item.cust_name }}
-              {{ item.order_begin_time }}
-              <VDivider></VDivider>
-            </template>
-          </VContainer>
-        </VCard>
+        <OrderList :orders="orders"></OrderList>
       </div>
     </VCol>
   </VRow>

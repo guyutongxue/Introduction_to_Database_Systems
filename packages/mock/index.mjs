@@ -89,7 +89,7 @@ function createCustomer() {
     cust_gender: Number(isFemale),
     cust_phone: faker.phone.number(),
     cust_email: faker.internet.email(fn, ln),
-    cust_account: faker.internet.userName(ln, fn),
+    cust_address: `${faker.address.state()}${faker.address.city()}${faker.address.streetAddress()}`,
     cust_password: faker.internet.password(),
   };
 }
@@ -100,14 +100,16 @@ const CUSTOMER_KEYS = [
   "cust_gender",
   "cust_phone",
   "cust_email",
-  "cust_account",
+  "cust_address",
   "cust_password",
 ];
 const CUSTOMER_NUM = 50;
 toSql("customer", CUSTOMER_KEYS, CUSTOMER_NUM, createCustomer);
 
 // Add a dummy shop, for collecting "deleted" dishes
-emit(`INSERT INTO shop (shop_id, shop_name, shop_password, shop_phone, business_status) VALUES (0, 'DELETED', 'error', 'error', 0);\n`);
+emit(
+  `INSERT INTO shop (shop_id, shop_name, shop_password, shop_phone, business_status) VALUES (0, 'DELETED', 'error', 'error', 0);\n`
+);
 
 function createShop() {
   const city = `${faker.address.state()}${faker.address.city()}`;
@@ -178,12 +180,7 @@ function createDish() {
     dish_sales: sales,
   };
 }
-const DISH_KEYS = [
-  "shop_id",
-  "dish_name",
-  "dish_value",
-  "dish_sales",
-];
+const DISH_KEYS = ["shop_id", "dish_name", "dish_value", "dish_sales"];
 const DISH_NUM = 200;
 toSql("dish", DISH_KEYS, DISH_NUM, createDish);
 
@@ -220,9 +217,10 @@ function createOrder() {
           }),
     order_value: faker.datatype.number({
       min: 2000,
-      max: 8000
+      max: 8000,
     }),
     order_begin_time: faker.date.recent(60),
+    order_destination: `${faker.address.state()}${faker.address.city()}${faker.address.streetAddress()}`,
     order_state: state,
   };
 }
@@ -232,6 +230,7 @@ const ORDER_KEYS = [
   "cour_id",
   "order_value",
   "order_begin_time",
+  "order_destination",
   "order_state",
 ];
 const ORDER_NUM = 100;

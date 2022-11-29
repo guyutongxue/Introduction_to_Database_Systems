@@ -6,7 +6,7 @@ export interface SqlCustomer {
   cust_gender: number | null;
   cust_phone: string;
   cust_email: string | null;
-  cust_account: string | null;
+  cust_address: string | null;
   // cust_password: string;
 }
 export interface SqlShop {
@@ -42,7 +42,9 @@ export interface SqlOrderDetailed {
   shop_id: number;
   shop_name: string;
   cour_id: number | null;
+  order_value: number;
   order_begin_time: Date;
+  order_destination: string;
   order_state: number;
 }
 

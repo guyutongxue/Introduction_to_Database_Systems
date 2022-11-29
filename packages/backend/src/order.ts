@@ -8,6 +8,14 @@ import { SCHEMA_DISH_LIST, SCHEMA_ORDER_LIST } from "./schema_def";
 import { sql2Reply, SqlDish, SqlOrderDetailed } from "./sql_type";
 
 const SCHEMA_SUBMIT = createSchema({
+  body: {
+    type:"object",
+    properties: {
+      order_destination: { type: "string"}
+    },
+    required: ["order_destination"],
+    additionalProperties: false
+  },
   response: {
     type: "array",
     items: {
@@ -26,6 +34,7 @@ export default fp(async (inst) => {
     },
     async (req, rep) => {
       const { id, role } = req.user;
+      const { order_destination } = req.body;
       if (role !== "customer") {
         return rep.code(401).send({
           message: "Only customer can submit an order.",
@@ -68,8 +77,8 @@ DELETE FROM shopping_car
         result = await client.query(
           `
 WITH o AS (
-    INSERT INTO orders (cust_id, shop_id, order_value)
-        SELECT DISTINCT $1::integer, shop_id, SUM(dish_value * car_num) as order_value
+    INSERT INTO orders (cust_id, shop_id, order_destination, order_value)
+        SELECT DISTINCT $1::INTEGER, $2::TEXT, shop_id, SUM(dish_value * car_num) as order_value
             FROM t
             GROUP BY shop_id
         RETURNING order_id, shop_id
@@ -78,7 +87,7 @@ INSERT INTO contain (dish_id, order_id, contain_num)
     SELECT dish_id, order_id, car_num
         FROM t NATURAL JOIN o
     RETURNING order_id`,
-          [id]
+          [id, order_destination]
         );
       });
       if (!result || !result.rowCount) {
@@ -123,8 +132,7 @@ SELECT order_id, cust_id, cust_name, shop_id, shop_name, cour_id, order_begin_ti
       let sql = `
 SELECT dish_id, shop_id, dish_name, dish_value, dish_sales
     FROM orders NATURAL JOIN contain NATURAL JOIN dish
-    WHERE order_id = $1
-    ORDER BY order_begin_time DESC`;
+    WHERE order_id = $1`;
       const args = [id, userId];
       if (role === "courier") {
         sql += ` AND cour_id = $2`;

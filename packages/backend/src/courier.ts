@@ -23,7 +23,8 @@ export default fp(async (inst) => {
         `
 SELECT order_id, cust_id, cust_name, shop_id, shop_name, cour_id, order_begin_time, order_state
     FROM shop NATURAL JOIN orders NATURAL JOIN customer
-    WHERE cour_id IS NULL`
+    WHERE cour_id IS NULL
+    ORDER BY order_begin_time DESC`
       );
       return rows.map(sql2Reply);
     }

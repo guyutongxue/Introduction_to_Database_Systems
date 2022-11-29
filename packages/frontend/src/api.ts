@@ -60,7 +60,9 @@ export type OrderDetailed = {
   shop_id: number;
   shop_name: string;
   cour_id: number;
+  order_value: number;
   order_begin_time: string; // ISO format
+  order_destination: string;
   order_state: number;
 };
 export type OrderListRes = OrderDetailed[];

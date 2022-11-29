@@ -6,7 +6,7 @@ CREATE TABLE customer (
     cust_gender SMALLINT,
     cust_phone TEXT UNIQUE NOT NULL,
     cust_email TEXT,
-    cust_account TEXT,
+    cust_address TEXT,
     cust_password TEXT NOT NULL
 );
 
@@ -38,6 +38,7 @@ CREATE TABLE orders (
     cour_id INTEGER REFERENCES courier,
     order_value INTEGER NOT NULL,
     order_begin_time TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    order_destination TEXT NOT NULL,
     order_state SMALLINT NOT NULL DEFAULT 0
 );
 
