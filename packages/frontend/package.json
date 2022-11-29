@@ -13,12 +13,14 @@
   "dependencies": {
     "@mdi/font": "^7.0.96",
     "axios": "^1.2.0",
+    "lodash-es": "^4.17.21",
     "vue": "^3.2.45",
     "vuetify": "^3.0.1"
   },
   "devDependencies": {
     "@rushstack/eslint-patch": "^1.1.4",
     "@types/eslint": "^8.4.10",
+    "@types/lodash-es": "^4.17.6",
     "@types/node": "^18.11.9",
     "@vitejs/plugin-vue": "^3.2.0",
     "@vue/eslint-config-typescript": "^11.0.0",

@@ -2,6 +2,7 @@
 import axios from "axios";
 import { HOST } from "@/config";
 import type { UserLoginRes, Role } from "@/api";
+import { checkPassword, checkPhone } from "@/util";
 
 const phone = $ref("");
 const password = $ref("");
@@ -21,17 +22,6 @@ async function login() {
   localStorage.setItem("role", role);
   emit("loggedIn", role);
 }
-function checkPhone(v: string) {
-  if (/^[\d-]+$/.test(v)) {
-    return true;
-  } else {
-    return "格式有误";
-  }
-}
-function checkPassword(v: string) {
-  if (v) return true;
-  else return "必填项";
-}
 </script>
 
 <template>
@@ -47,7 +37,8 @@ function checkPassword(v: string) {
             :rules="[checkPhone]"
             label="电话号码"
             required
-          ></VTextField>
+          >
+          </VTextField>
           <VTextField
             variant="underlined"
             color="primary"
@@ -56,7 +47,8 @@ function checkPassword(v: string) {
             label="密码"
             required
             type="password"
-          ></VTextField>
+          >
+          </VTextField>
         </VCardText>
         <VDivider></VDivider>
         <VCardActions>

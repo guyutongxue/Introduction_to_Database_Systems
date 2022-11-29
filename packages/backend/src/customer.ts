@@ -32,22 +32,19 @@ const SCHEMA_SC_GET = createSchema({
 } as const);
 type SqlScGet = FromSchema<typeof SCHEMA_SC_GET.response.default.items>;
 
-const SCHEMA_SC_SET = createSchema({
+const SCHEMA_SC_POST = createSchema({
   body: {
-    type: "array",
-    items: {
-      type: "object",
-      properties: {
-        dish_id: {
-          type: "number",
-        },
-        car_num: {
-          type: "number",
-        },
+    type: "object",
+    properties: {
+      dish_id: {
+        type: "number",
       },
-      required: ["dish_id", "car_num"],
-      additionalProperties: false,
+      car_num: {
+        type: "number",
+      },
     },
+    required: ["dish_id"],
+    additionalProperties: false,
   },
   response: J_SCHEMA_SUCCESS,
 } as const);
@@ -55,38 +52,92 @@ const SCHEMA_SC_SET = createSchema({
 export default fp(async function (ins) {
   const fastify = ins.withTypeProvider<JsonSchemaToTsProvider>();
   fastify.post(
-    "/customer/car",
+    "/customer/car/insert",
     {
-      schema: SCHEMA_SC_SET,
+      schema: SCHEMA_SC_POST,
       preHandler: [fastify.verifyJwt],
     },
     async (req, rep) => {
       const { id, role } = req.user;
-      const list = req.body;
+      const { dish_id, car_num = 1 } = req.body;
       if (role !== "customer") {
         return rep.code(401).send({
           message: "Only customer can set shopping car.",
         });
       }
-      await transaction(async (client) => {
-        await client.query(`DELETE FROM shopping_car WHERE cust_id = $1;`, [
-          id,
-        ]);
-        await client.query(
+      const { rowCount } = await query(
+        `
+SELECT car_num
+    FROM shopping_car
+    WHERE cust_id = $1 AND dish_id = $2`,
+        [id, dish_id]
+      );
+      if (!rowCount) {
+        await query(
           `
-INSERT INTO shopping_car (dish_id, cust_id, car_num)
-    SELECT * FROM UNNEST (
-        $1::INTEGER[], 
-        $2::INTEGER[], 
-        $3::INTEGER[]
-    ) AS t;`,
-          [
-            list.map((i) => i.dish_id),
-            Array(list.length).fill(id),
-            list.map((i) => i.car_num),
-          ]
+INSERT INTO shopping_car (cust_id, dish_id, car_num)
+    VALUES ($1, $2, $3);`,
+          [id, dish_id, car_num]
         );
-      });
+      } else {
+        await query(
+          `
+UPDATE shopping_car
+    SET car_num = car_num + $3
+    WHERE cust_id = $1 AND dish_id = $2;`,
+          [id, dish_id, car_num]
+        );
+      }
+      return {
+        success: true as const,
+      };
+    }
+  );
+  fastify.post(
+    "/customer/car/delete",
+    {
+      schema: SCHEMA_SC_POST,
+      preHandler: [fastify.verifyJwt],
+    },
+    async (req, rep) => {
+      const { id, role } = req.user;
+      const { dish_id, car_num = 1 } = req.body;
+      if (role !== "customer") {
+        return rep.code(401).send({
+          message: "Only customer can set shopping car.",
+        });
+      }
+      const { rows: oldRows, rowCount } = await query<{ car_num: number }>(
+        `
+SELECT car_num
+  FROM shopping_car
+  WHERE cust_id = $1 AND dish_id = $2`,
+        [id, dish_id]
+      );
+      if (!rowCount) {
+        return rep.code(404).send({
+          message: "No such dish found in your shopping cart.",
+        });
+      }
+      const old_car_num = oldRows[0].car_num;
+      const new_car_num = old_car_num - car_num;
+      if (new_car_num <= 0) {
+        await query(
+          `
+DELETE FROM shopping_car
+    WHERE cust_id = $1 AND dish_id = $2;`,
+          [id, dish_id]
+        );
+      } else {
+        await query(
+          `
+UPDATE shopping_car
+  SET car_num = $3
+  WHERE cust_id = $1 AND dish_id = $2;`,
+          [id, dish_id, new_car_num]
+        );
+      }
+
       return {
         success: true as const,
       };

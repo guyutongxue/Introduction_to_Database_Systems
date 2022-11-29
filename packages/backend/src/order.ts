@@ -4,11 +4,8 @@ import _ from "lodash-es";
 import { QueryResult } from "pg";
 import { query, transaction } from "./db";
 import { createSchema } from "./schema";
-import {
-  SCHEMA_DISH_LIST,
-  SCHEMA_ORDER_LIST,
-} from "./schema_def";
-import { sql2Reply, SqlDish, SqlOrder } from "./sql_type";
+import { SCHEMA_DISH_LIST, SCHEMA_ORDER_LIST } from "./schema_def";
+import { sql2Reply, SqlDish, SqlOrderDetailed } from "./sql_type";
 
 const SCHEMA_SUBMIT = createSchema({
   response: {
@@ -46,6 +43,19 @@ CREATE TEMPORARY TABLE t
           [id]
         );
 
+        // Add sales
+        await client.query(`
+UPDATE dish AS d
+    SET dish_sales = dish_sales + (
+        SELECT car_num
+            FROM t
+            WHERE dish_id = d.dish_id
+    )
+    WHERE dish_id IN (
+        SELECT dish_id FROM t
+    );
+`);
+
         // Clear the shopping car
         await client.query(
           `
@@ -55,7 +65,7 @@ DELETE FROM shopping_car
         );
 
         // Create orders and contain relations
-        (result = await client.query(
+        result = await client.query(
           `
 WITH o AS (
     INSERT INTO orders (cust_id, shop_id, order_value)
@@ -67,11 +77,13 @@ WITH o AS (
 INSERT INTO contain (dish_id, order_id, contain_num)
     SELECT dish_id, order_id, car_num
         FROM t NATURAL JOIN o
-    RETURNING order_id`, [id]));
+    RETURNING order_id`,
+          [id]
+        );
       });
       if (!result || !result.rowCount) {
         return rep.code(400).send({
-          message: "Shopping car is empty."
+          message: "Shopping car is empty.",
         });
       }
       return _.uniq(result.rows.map((r) => r.order_id));
@@ -87,8 +99,12 @@ INSERT INTO contain (dish_id, order_id, contain_num)
     async (req) => {
       const { id, role } = req.user;
       const idCol = role.substring(0, 4) + "_id";
-      const { rows } = await query<SqlOrder>(
-        `SELECT * FROM orders WHERE ${idCol} = $1`,
+      const { rows } = await query<SqlOrderDetailed>(
+        `
+SELECT order_id, cust_id, cust_name, shop_id, shop_name, cour_id, order_begin_time, order_state
+    FROM shop NATURAL JOIN orders NATURAL JOIN customer
+    WHERE ${idCol} = $1
+    ORDER BY order_begin_time DESC`,
         [id]
       );
       return rows.map(sql2Reply);
@@ -107,7 +123,8 @@ INSERT INTO contain (dish_id, order_id, contain_num)
       let sql = `
 SELECT dish_id, shop_id, dish_name, dish_value, dish_sales
     FROM orders NATURAL JOIN contain NATURAL JOIN dish
-    WHERE order_id = $1`;
+    WHERE order_id = $1
+    ORDER BY order_begin_time DESC`;
       const args = [id, userId];
       if (role === "courier") {
         sql += ` AND cour_id = $2`;

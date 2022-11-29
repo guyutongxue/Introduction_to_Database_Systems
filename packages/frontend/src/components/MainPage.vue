@@ -53,10 +53,10 @@ onMounted(async () => {
 </script>
 
 <template>
-  <VContainer class="mt-4">
+  <VContainer class="!pt-12">
     <header class="flex items-center justify-between">
       <h1 class="text-h4">
-        欢迎您，{{ name }}！您的角色是 {{ ROLE_NAME[userRole] }}
+        欢迎您，{{ name }}！您的身份是 {{ ROLE_NAME[userRole] }}
       </h1>
       <VBtn @click="logout" variant="plain" color="error">注销</VBtn>
     </header>

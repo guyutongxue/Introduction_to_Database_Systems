@@ -42,3 +42,7 @@
 - `/shop/dish` POST
 - `/shop/dish/:id` PUT & DELETE
 - 前端：框架
+
+## 11.29
+- 更新销量
+- 

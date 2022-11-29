@@ -89,27 +89,17 @@ export const J_SCHEMA_SUCCESS = {
   additionalProperties: false,
 } as const;
 
-export const J_SCHEMA_ORDER = {
+export const J_SCHEMA_ORDER_DETAILED = {
   type: "object",
   properties: {
-    order_id: {
-      type: "number",
-    },
-    cust_id: {
-      type: "number",
-    },
-    shop_id: {
-      type: "number",
-    },
-    cour_id: {
-      type: "number",
-    },
-    order_begin_time: {
-      type: "string",
-    },
-    order_state: {
-      type: "number",
-    },
+    order_id: { type: "number" },
+    cust_id: { type: "number" },
+    cust_name: { type: "string" },
+    shop_id: { type: "number" },
+    shop_name: { type: "string" },
+    cour_id: { type: "number" },
+    order_begin_time: { type: "string" },
+    order_state: { type: "number" },
   },
   required: [
     "order_id",
@@ -136,6 +126,6 @@ export const SCHEMA_DISH_LIST = createSchema({
 export const SCHEMA_ORDER_LIST = createSchema({
   response: {
     type: "array",
-    items: J_SCHEMA_ORDER,
+    items: J_SCHEMA_ORDER_DETAILED,
   },
 } as const);

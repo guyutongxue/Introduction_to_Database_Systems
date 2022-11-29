@@ -71,6 +71,7 @@ importers:
       '@mdi/font': ^7.0.96
       '@rushstack/eslint-patch': ^1.1.4
       '@types/eslint': ^8.4.10
+      '@types/lodash-es': ^4.17.6
       '@types/node': ^18.11.9
       '@vitejs/plugin-vue': ^3.2.0
       '@vue/eslint-config-typescript': ^11.0.0
@@ -80,6 +81,7 @@ importers:
       eslint: ^8.22.0
       eslint-plugin-only-warn: ^1.0.3
       eslint-plugin-vue: ^9.3.0
+      lodash-es: ^4.17.21
       npm-run-all: ^4.1.5
       postcss: ^8.4.19
       tailwindcss: ^3.2.4
@@ -90,7 +92,9 @@ importers:
       vuetify: ^3.0.1
     dependencies:
       '@mdi/font': 7.0.96
+      '@types/lodash-es': 4.17.6
       axios: 1.2.0
+      lodash-es: 4.17.21
       vue: 3.2.45
       vuetify: 3.0.2_vue@3.2.45
     devDependencies:
@@ -625,11 +629,9 @@ packages:
     resolution: {integrity: sha512-R+zTeVUKDdfoRxpAryaQNRKk3105Rrgx2CFRClIgRGaqDTdjsm8h6IYA8ir584W3ePzkZfst5xIgDwYrlh9HLg==}
     dependencies:
       '@types/lodash': 4.14.190
-    dev: true
 
   /@types/lodash/4.14.190:
     resolution: {integrity: sha512-5iJ3FBJBvQHQ8sFhEhJfjUP+G+LalhavTkYyrAYqz5MEJG+erSv0k9KJLb6q7++17Lafk1scaTIFXcMJlwK8Mw==}
-    dev: true
 
   /@types/md5/2.3.2:
     resolution: {integrity: sha512-v+JFDu96+UYJ3/UWzB0mEglIS//MZXgRaJ4ubUPwOM0gvLc/kcQ3TWNYwENEK7/EcXGQVrW8h/XqednSjBd/Og==}

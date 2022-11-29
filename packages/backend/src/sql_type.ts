@@ -35,10 +35,12 @@ export interface SqlDish {
   dish_value: number;
   dish_sales: number;
 }
-export interface SqlOrder {
+export interface SqlOrderDetailed {
   order_id: number;
   cust_id: number;
+  cust_name: string;
   shop_id: number;
+  shop_name: string;
   cour_id: number | null;
   order_begin_time: Date;
   order_state: number;

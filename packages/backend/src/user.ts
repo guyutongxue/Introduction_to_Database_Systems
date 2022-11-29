@@ -244,7 +244,7 @@ SELECT shop_id, shop_name, shop_location, shop_phone, delivery_range, business_s
         return sql2Reply(rows[0]);
       } else if (role === "courier") {
         const { rows, rowCount } = await query<SqlCourier>(
-          `SELECT cour_id, cour_name, cour_phone, cour_living, cour_temperature, cour_covid
+          `SELECT cour_id, cour_name, cour_phone, cour_living, cour_onboarding_time, cour_temperature, cour_covid
     FROM courier
     WHERE cour_id = $1`,
           [id]
@@ -272,19 +272,22 @@ SELECT shop_id, shop_name, shop_location, shop_phone, delivery_range, business_s
       const { id, role } = req.user;
       const idCol = role.substring(0, 4) + "_id";
       const passwordCol = role.substring(0, 4) + "_password";
-      let sql = `UPDATE ${role}\n`;
+
+      const updatedCols: string[] = [];
+      const placeholders: string[] = [];
+      const args: unknown[] = [];
       let argIndex = 1;
-      const args = [];
       for (const [k, v] of Object.entries(req.body)) {
         if (!v) continue;
         if (
           role === "customer" &&
           ["cust_name", "id", "cust_birth", "cust_gender"].includes(k)
         ) {
-          sql += `    SET ${k} = COALESCE(${k}, $${argIndex++})\n`;
+          placeholders.push(`COALESCE(${k}, $${argIndex++})`);
         } else {
-          sql += `    SET ${k} = $${argIndex++}`;
+          placeholders.push(`$${argIndex++}`);
         }
+        updatedCols.push(k);
         if (k === passwordCol) {
           args.push(md5(v as string));
         } else if (["cust_birth", "cour_onboarding_time"].includes(k)) {
@@ -293,6 +296,10 @@ SELECT shop_id, shop_name, shop_location, shop_phone, delivery_range, business_s
           args.push(v);
         }
       }
+      let sql = `
+UPDATE ${role}
+    SET (${updatedCols.join(", ")}) = (${placeholders.join(", ")})
+`;
       if (args.length === 0) {
         return rep.code(401).send({
           message: "No updated field.",

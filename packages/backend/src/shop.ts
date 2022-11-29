@@ -9,6 +9,7 @@ import {
   SCHEMA_DISH_LIST,
 } from "./schema_def";
 import { sql2Reply, SqlDish, SqlShop } from "./sql_type";
+import _ from "lodash-es";
 
 const SCHEMA_SHOP_LIST = createSchema({
   response: {
@@ -161,21 +162,28 @@ INSERT INTO dish (shop_id, dish_name, dish_value)
           message: "Only shop can modify dishes.",
         });
       }
-      let sql = `UPDATE dish\n`;
+      const updatedCols: string[] = [];
       const args: unknown[] = [];
       if (dish_name !== undefined) {
+        updatedCols.push("dish_name");
         args.push(dish_name);
-        sql += `    SET dish_name = $${args.length}\n`;
       }
       if (dish_value !== undefined) {
+        updatedCols.push("dish_value");
         args.push(dish_value);
-        sql += `    SET dish_value = $${args.length}\n`;
       }
+      let sql = `
+UPDATE dish
+    SET (${updatedCols.join(", ")}) = (${_.range(updatedCols.length)
+        .map((i) => `$${i + 1}`)
+        .join(", ")})
+`;
       args.push(shop_id, dish_id);
       sql += `    WHERE shop_id = $${args.length - 1} AND dish_id = $${
         args.length
-      }`;
+      }\n`;
       sql += `    RETURNING dish_id`;
+      console.log({ sql, args });
       const { rowCount } = await query(sql, args);
       if (!rowCount) {
         return rep.code(400).send({

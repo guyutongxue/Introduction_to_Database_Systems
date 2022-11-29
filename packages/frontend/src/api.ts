@@ -53,15 +53,17 @@ export type DishListRes = Dish[];
 export type OrderListReq = {
   role: "customer" | "shop" | "courier" | "admin";
 };
-export type Order = {
+export type OrderDetailed = {
   order_id: number;
   cust_id: number;
+  cust_name: string;
   shop_id: number;
+  shop_name: string;
   cour_id: number;
   order_begin_time: string; // ISO format
   order_state: number;
 };
-export type OrderListRes = Order[];
+export type OrderListRes = OrderDetailed[];
 export type ShoppingCarItem = {
   dish_id: number;
   dish_name: string;
@@ -74,4 +76,4 @@ export type ShoppingCarGetRes = ShoppingCarItem[];
 export type ShoppingCarSetRes = {
   success: true;
 };
-export type OrderSubmitRes = Order;
+export type OrderSubmitRes = OrderDetailed;

@@ -4,11 +4,17 @@
 
 html {
   overflow-y: auto !important;
+  background: no-repeat center/cover url("https://www.dmoe.cc/random.php");
+}
+
+:root {
+  --background-color: 255, 255, 255;
 }
 
 body,
 #app {
   width: 100%;
   height: 100vh;
-  background-color: #eeffff;
+  background: rgba(var(--background-color), 0.6);
+  overflow: auto;
 }
