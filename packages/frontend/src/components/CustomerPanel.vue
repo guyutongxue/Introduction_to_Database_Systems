@@ -12,7 +12,7 @@ import DishList from "./DishList.vue";
 import OrderList from "./OrderList.vue";
 import _ from "lodash-es";
 
-defineProps<{
+const props = defineProps<{
   info: UserInfoCustRes;
 }>();
 
@@ -60,7 +60,9 @@ async function removeFromCar(dish_id: number) {
   refreshCar();
 }
 async function submitOrder() {
-  const { data } = await axios.post<number[]>(`${HOST}/order`);
+  const { data } = await axios.post<number[]>(`${HOST}/order`, {
+    order_destination: props.info.cust_address
+  });
   console.log(data);
   refreshCar();
   refreshOrders();

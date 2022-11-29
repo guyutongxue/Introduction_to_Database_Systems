@@ -38,7 +38,6 @@ let name = $ref("");
 let info = $ref(null as UserInfoRes | null);
 
 onMounted(async () => {
-  try {
     const { data } = await axios.get<UserInfoRes>(`${HOST}/user/info`);
     console.log(data);
     info = data;
@@ -46,9 +45,6 @@ onMounted(async () => {
     else if ("shop_id" in info) name = info.shop_name;
     else if ("cour_id" in info) name = info.cour_name;
     else name = "管理员";
-  } catch (e) {
-    alert(`加载用户数据时出现错误：${e instanceof Error ? e.message : e}`);
-  }
 });
 </script>
 

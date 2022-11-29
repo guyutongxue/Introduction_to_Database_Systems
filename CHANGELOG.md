@@ -28,7 +28,7 @@
 - 郭：API 设计（顾客）初版
 - `/shops`
 - `/shop/:id/dishes`
-- `/customer/car` GET & POST
+- `/customer/car` GET & ~~POST~~
 - `/user/info` POST
 - +前端，调整为 monorepo
 
@@ -45,4 +45,7 @@
 
 ## 11.29
 - 更新销量
-- 
+- 补上忘记了的配送地址（缺少前端设置）
+- 前端：商家菜单管理、购物车管理、下订单
+- `/customer/car/:id/{insert, delete}` POST
+- `/orders/free`

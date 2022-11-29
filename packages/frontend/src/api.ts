@@ -20,7 +20,7 @@ export type UserInfoCustRes = {
   cust_birth?: string; // ISO format
   cust_gender: number; // 0 for male, 1 for female
   cust_phone: number;
-  cust_account?: string;
+  cust_address?: string;
   cust_email?: string;
 };
 export type Shop = {

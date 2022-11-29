@@ -78,7 +78,7 @@ DELETE FROM shopping_car
           `
 WITH o AS (
     INSERT INTO orders (cust_id, shop_id, order_destination, order_value)
-        SELECT DISTINCT $1::INTEGER, $2::TEXT, shop_id, SUM(dish_value * car_num) as order_value
+        SELECT DISTINCT $1::INTEGER, shop_id, $2::TEXT, SUM(dish_value * car_num) as order_value
             FROM t
             GROUP BY shop_id
         RETURNING order_id, shop_id
@@ -110,7 +110,7 @@ INSERT INTO contain (dish_id, order_id, contain_num)
       const idCol = role.substring(0, 4) + "_id";
       const { rows } = await query<SqlOrderDetailed>(
         `
-SELECT order_id, cust_id, cust_name, shop_id, shop_name, cour_id, order_begin_time, order_state
+SELECT order_id, cust_id, cust_name, shop_id, shop_name, cour_id, order_value, order_begin_time, order_destination, order_state
     FROM shop NATURAL JOIN orders NATURAL JOIN customer
     WHERE ${idCol} = $1
     ORDER BY order_begin_time DESC`,

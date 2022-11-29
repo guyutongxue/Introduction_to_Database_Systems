@@ -34,6 +34,7 @@ async function login() {
             variant="underlined"
             color="primary"
             v-model="phone"
+            autocomplete="username"
             :rules="[checkPhone]"
             label="电话号码"
             required
@@ -43,6 +44,7 @@ async function login() {
             variant="underlined"
             color="primary"
             v-model="password"
+            autocomplete="current-password"
             :rules="[checkPassword]"
             label="密码"
             required

@@ -10,16 +10,12 @@ let password = $ref("");
 let form = $ref(false);
 
 async function register() {
-  try {
-    await axios.post(`${HOST}/user/register`, {
-      role,
-      phone,
-      name,
-      password,
-    });
-  } catch (e) {
-    alert(e instanceof Error ? e.message : e);
-  }
+  await axios.post(`${HOST}/user/register`, {
+    role,
+    phone,
+    name,
+    password,
+  });
 }
 </script>
 
@@ -38,6 +34,7 @@ async function register() {
           color="primary"
           label="电话号码"
           v-model="phone"
+          autocomplete="username"
           :rules="[checkPhone]"
           required
         ></VTextField>
@@ -46,6 +43,7 @@ async function register() {
           color="primary"
           :label="role === 'shop' ? '商铺名' : '姓名'"
           v-model="name"
+          autocomplete="name"
           :rules="[checkName]"
           required
         ></VTextField>
@@ -54,6 +52,7 @@ async function register() {
           color="primary"
           label="密码"
           v-model="password"
+          autocomplete="current-password"
           :rules="[checkPassword]"
           type="password"
           required
