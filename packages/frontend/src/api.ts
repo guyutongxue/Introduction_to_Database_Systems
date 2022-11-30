@@ -53,6 +53,15 @@ export type DishListRes = Dish[];
 export type OrderListReq = {
   role: "customer" | "shop" | "courier" | "admin";
 };
+export const ORDER_STATE = {
+  WAITING: 0,
+  ACCEPTED: 1,
+  COURIER_RECEIVED: 2,
+  COURIER_DELIVERING: 3,
+  COURIER_ARRIVED: 4,
+  COMPLETED: 5,
+  CANCELED: 6,
+} as const;
 export type OrderDetailed = {
   order_id: number;
   cust_id: number;
@@ -74,9 +83,17 @@ export type ShoppingCarItem = {
   shop_name: string;
   car_num: number;
   dish_value: number;
-}
+};
 export type ShoppingCarGetRes = ShoppingCarItem[];
 export type ShoppingCarSetRes = {
   success: true;
 };
 export type OrderSubmitRes = OrderDetailed;
+
+export type ContainDetailed = {
+  dish_id: number;
+  dish_name: string;
+  dish_value: number;
+  contain_num: number;
+};
+export type OrderDishesRes = ContainDetailed[];

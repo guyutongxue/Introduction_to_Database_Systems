@@ -23,7 +23,7 @@ const role = $ref(getLocalStorageRole());
   <MainPage
     v-else
     class="w-full"
-    :user-role="role"
+    :role="role"
     @logged-out="role = null"
   ></MainPage>
 </template>

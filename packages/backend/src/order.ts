@@ -1,20 +1,31 @@
 import { JsonSchemaToTsProvider } from "@fastify/type-provider-json-schema-to-ts";
 import fp from "fastify-plugin";
 import _ from "lodash-es";
+import dayjs from "dayjs";
 import { QueryResult } from "pg";
 import { query, transaction } from "./db";
 import { createSchema } from "./schema";
-import { SCHEMA_DISH_LIST, SCHEMA_ORDER_LIST } from "./schema_def";
-import { sql2Reply, SqlDish, SqlOrderDetailed } from "./sql_type";
+import {
+  J_SCHEMA_SUCCESS,
+  SCHEMA_DISH_LIST,
+  SCHEMA_ORDER_LIST,
+} from "./schema_def";
+import {
+  sql2Reply,
+  SqlCourier,
+  SqlDish,
+  SqlOrder,
+  SqlOrderDetailed,
+} from "./sql_type";
 
 const SCHEMA_SUBMIT = createSchema({
   body: {
-    type:"object",
+    type: "object",
     properties: {
-      order_destination: { type: "string"}
+      order_destination: { type: "string" },
     },
     required: ["order_destination"],
-    additionalProperties: false
+    additionalProperties: false,
   },
   response: {
     type: "array",
@@ -23,6 +34,47 @@ const SCHEMA_SUBMIT = createSchema({
     },
   },
 } as const);
+
+const SCHEMA_CONTAIN = createSchema({
+  params: {
+    id: {
+      type: "number",
+    },
+  },
+  response: {
+    type: "array",
+    items: {
+      type: "object",
+      properties: {
+        dish_id: { type: "number" },
+        dish_name: { type: "string" },
+        dish_value: { type: "number" },
+        contain_num: { type: "number" },
+      },
+      required: ["dish_id", "dish_name", "dish_value", "contain_num"],
+      additionalProperties: false,
+    },
+  },
+} as const);
+
+const SCHEMA_NEXT = createSchema({
+  params: {
+    id: {
+      type: "number",
+    },
+  },
+  response: J_SCHEMA_SUCCESS,
+});
+
+const ORDER_STATE = {
+  WAITING: 0,
+  ACCEPTED: 1,
+  COURIER_RECEIVED: 2,
+  COURIER_DELIVERING: 3,
+  COURIER_ARRIVED: 4,
+  COMPLETED: 5,
+  CANCELED: 6,
+} as const;
 
 export default fp(async (inst) => {
   const fastify = inst.withTypeProvider<JsonSchemaToTsProvider>();
@@ -36,7 +88,7 @@ export default fp(async (inst) => {
       const { id, role } = req.user;
       const { order_destination } = req.body;
       if (role !== "customer") {
-        return rep.code(401).send({
+        return rep.code(403).send({
           message: "Only customer can submit an order.",
         });
       }
@@ -123,19 +175,19 @@ SELECT order_id, cust_id, cust_name, shop_id, shop_name, shop_location, cour_id,
   fastify.get(
     "/order/:id/dishes",
     {
-      schema: SCHEMA_DISH_LIST,
+      schema: SCHEMA_CONTAIN,
       preHandler: [fastify.verifyJwt],
     },
     async (req) => {
       const { id } = req.params;
       const { id: userId, role } = req.user;
       let sql = `
-SELECT dish_id, shop_id, dish_name, dish_value, dish_sales
+SELECT dish_id, dish_name, dish_value, contain_num
     FROM orders NATURAL JOIN contain NATURAL JOIN dish
     WHERE order_id = $1`;
       const args = [id, userId];
       if (role === "courier") {
-        sql += ` AND cour_id = $2`;
+        sql += ` AND cour_id = $2 OR cour_id IS NULL`;
       } else if (role === "customer") {
         sql += ` AND cust_id = $2`;
       } else if (role === "shop") {
@@ -143,8 +195,109 @@ SELECT dish_id, shop_id, dish_name, dish_value, dish_sales
       } else {
         args.pop();
       }
-      const { rows } = await query<SqlDish>(sql, args);
-      return rows.map(sql2Reply);
+      const { rows } = await query<{
+        dish_id: number;
+        dish_name: string;
+        dish_value: number;
+        contain_num: number;
+      }>(sql, args);
+      return rows;
+    }
+  );
+  fastify.post(
+    "/order/:id/next",
+    {
+      schema: SCHEMA_NEXT,
+      preHandler: [fastify.verifyJwt],
+    },
+    async (req, rep) => {
+      const { id, role } = req.user;
+      const { id: order_id } = req.params;
+      const { rows, rowCount } = await query<SqlOrder>(
+        `
+SELECT * FROM orders WHERE order_id = $1`,
+        [order_id]
+      );
+      if (!rowCount) {
+        return rep.code(404).send({
+          message: "No such order.",
+        });
+      }
+      const order = rows[0];
+      if (role === "customer" && order.cust_id === id) {
+        if (order.order_state === ORDER_STATE.WAITING) {
+          // cancel
+          await query(
+            `UPDATE orders SET order_state = 6 WHERE order_id = $1;`,
+            [order_id]
+          );
+        } else if (order.order_state === ORDER_STATE.COURIER_ARRIVED) {
+          await query(
+            `UPDATE orders SET order_state = 5 WHERE order_id = $1;`,
+            [order_id]
+          );
+        } else {
+          return rep.code(409).send({
+            message: "The state of this order cannot be modified by you.",
+          });
+        }
+      } else if (role === "courier" && order.cour_id === null) {
+        const { rows } = await query<SqlCourier>(
+          `SELECT cour_temperature, cour_covid FROM courier WHERE cour_id = $1`,
+          [id]
+        );
+        if (
+          rows[0].cour_temperature === null ||
+          rows[0].cour_temperature > 37
+        ) {
+          return rep.code(451).send({
+            message: "Temperature is abnormal. You cannot accept new orders.",
+          });
+        }
+        const covidDate = dayjs(rows[0].cour_covid ?? "1970-01-01").add(
+          48,
+          "h"
+        );
+        console.log(covidDate.format("YYYY-MM-DD"));
+        console.log(dayjs().format("YYYY-MM-DD"));
+        if (covidDate.isBefore(dayjs())) {
+          return rep.code(451).send({
+            message:
+              "Your COVID-PCR is outdated. You cannot accept new orders.",
+          });
+        }
+        // accept
+        await query(
+          `UPDATE orders SET (cour_id, order_state) = ($1::INTEGER, 1) WHERE order_id = $2`,
+          [id, order_id]
+        );
+      } else if (role === "courier" && order.cour_id === id) {
+        if (
+          (
+            [
+              ORDER_STATE.ACCEPTED,
+              ORDER_STATE.COURIER_RECEIVED,
+              ORDER_STATE.COURIER_DELIVERING,
+            ] as number[]
+          ).includes(order.order_state)
+        ) {
+          await query(
+            `UPDATE orders SET order_state = order_state + 1 WHERE order_id = $1`,
+            [order_id]
+          );
+        } else {
+          return rep.code(409).send({
+            message: "The state of this order cannot be modified by you.",
+          });
+        }
+      } else {
+        return rep.code(403).send({
+          message: "Only customers and couriers can update orders.",
+        });
+      }
+      return {
+        success: true as const,
+      };
     }
   );
 });

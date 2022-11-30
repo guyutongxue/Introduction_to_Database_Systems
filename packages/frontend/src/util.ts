@@ -1,4 +1,3 @@
-
 export function checkPhone(v: string) {
   if (/^[\d-]+$/.test(v)) {
     return true;
@@ -16,10 +15,10 @@ export function checkName(v: string) {
 }
 
 function isNumber(num: unknown) {
-  if (typeof num === 'number') {
+  if (typeof num === "number") {
     return num - num === 0;
   }
-  if (typeof num === 'string' && num.trim() !== '') {
+  if (typeof num === "string" && num.trim() !== "") {
     return Number.isFinite(+num);
   }
   return false;

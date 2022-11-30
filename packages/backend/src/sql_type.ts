@@ -35,18 +35,20 @@ export interface SqlDish {
   dish_value: number;
   dish_sales: number;
 }
-export interface SqlOrderDetailed {
+export interface SqlOrder {
   order_id: number;
   cust_id: number;
-  cust_name: string;
   shop_id: number;
-  shop_name: string;
-  shop_location: string;
   cour_id: number | null;
   order_value: number;
   order_begin_time: Date;
   order_destination: string;
   order_state: number;
+}
+export interface SqlOrderDetailed extends SqlOrder {
+  cust_name: string;
+  shop_name: string;
+  shop_location?: string;
 }
 
 type EraseDate<T> = T extends Date ? string : T;

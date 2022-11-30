@@ -29,7 +29,7 @@
 - `/shops`
 - `/shop/:id/dishes`
 - `/customer/car` GET & ~~POST~~
-- `/user/info` POST
+- `/user/info` ~~POST~~ PUT
 - +前端，调整为 monorepo
 
 ## 11.28
@@ -49,3 +49,10 @@
 - 前端：商家菜单管理、购物车管理、下订单
 - `/customer/car/:id/{insert, delete}` POST
 - `/orders/free`
+
+## 11.30
+- `/user/password` POST
+- `/user/phone` POST
+- `/order/:id/next` POST
+- 前端：订单信息、订单更新
+- `/courier/health` POST；健康审查

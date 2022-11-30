@@ -67,6 +67,10 @@ async function submitOrder() {
   refreshCar();
   refreshOrders();
 }
+async function onOrderNext(id: number) {
+  await axios.post(`${HOST}/order/${id}/next`);
+  refreshOrders();
+}
 
 onMounted(async () => {
   refreshShops();
@@ -76,6 +80,14 @@ onMounted(async () => {
 </script>
 
 <template>
+  <VAlert
+    v-if="info.cust_address === undefined"
+    title="您还没有填写配送地址"
+    type="warning"
+    class="mb-3"
+  >
+    您将无法下单。请更新您的用户信息-配送地址。
+  </VAlert>
   <VRow>
     <VCol :cols="12" :sm="6" :md="8">
       <VCard>
@@ -101,7 +113,7 @@ onMounted(async () => {
                 <div class="text-xl mb-2 mx-2">{{ shop.shop_name }}</div>
                 <div class="text-grey">
                   <VIcon icon="mdi-map-marker"></VIcon>
-                  {{ shop.shop_location ?? "地址未知" }}
+                  {{ shop.shop_location }}
                   <VIcon icon="mdi-phone"></VIcon>
                   {{ shop.shop_phone }}
                 </div>
@@ -181,7 +193,7 @@ onMounted(async () => {
             </VBtn>
           </VCardActions>
         </VCard>
-        <OrderList :orders="orders"></OrderList>
+        <OrderList :orders="orders" @next="onOrderNext"></OrderList>
       </div>
     </VCol>
   </VRow>

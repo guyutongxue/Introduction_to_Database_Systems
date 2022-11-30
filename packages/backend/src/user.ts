@@ -30,12 +30,8 @@ const SCHEMA_LOGIN = createSchema({
   body: {
     type: "object",
     properties: {
-      phone: {
-        type: "string",
-      },
-      password: {
-        type: "string",
-      },
+      phone: { type: "string" },
+      password: { type: "string" },
     },
     required: ["phone", "password"],
     additionalProperties: false,
@@ -86,40 +82,48 @@ const SCHEMA_INFO = createSchema({
 
 const SCHEMA_UPDATE_INFO = createSchema({
   body: {
-    anyOf: [
-      {
-        type: "object",
-        properties: {
-          id: { type: "string" },
-          cust_birth: { type: "string" },
-          cust_gender: { type: "number" },
-          cust_email: { type: "string" },
-          cust_address: { type: "string" },
-          cust_password: { type: "string" },
-        },
-        additionalProperties: false,
-      },
-      {
-        type: "object",
-        properties: {
-          shop_name: { type: "string" },
-          shop_password: { type: "string" },
-          shop_location: { type: "string" },
-          delivery_range: { type: "string" },
-          business_status: { type: "number" },
-        },
-        additionalProperties: false,
-      },
-      {
-        type: "object",
-        properties: {
-          cour_name: { type: "string" },
-          cour_living: { type: "string" },
-          cour_onboarding_time: { type: "string" },
-        },
-        additionalProperties: false,
-      },
-    ],
+    type: "object",
+    properties: {
+      id: { type: "string" },
+      cust_birth: { type: "string" },
+      cust_gender: { type: "number" },
+      cust_email: { type: "string" },
+      cust_address: { type: "string" },
+      shop_name: { type: "string" },
+      shop_location: { type: "string" },
+      delivery_range: { type: "string" },
+      business_status: { type: "number" },
+      cour_name: { type: "string" },
+      cour_living: { type: "string" },
+      cour_onboarding_time: { type: "string" },
+    },
+    additionalProperties: false,
+  },
+  response: J_SCHEMA_SUCCESS,
+} as const);
+
+const SCHEMA_CHANGE_PASSWORD = createSchema({
+  body: {
+    type: "object",
+    properties: {
+      oldPassword: { type: "string" },
+      newPassword: { type: "string" },
+    },
+    required: ["oldPassword", "newPassword"],
+    additionalProperties: false,
+  },
+  response: J_SCHEMA_SUCCESS,
+} as const);
+
+const SCHEMA_CHANGE_PHONE = createSchema({
+  body: {
+    type: "object",
+    properties: {
+      phone: { type: "string" },
+      password: { type: "string" },
+    },
+    required: ["phone", "password"],
+    additionalProperties: false,
   },
   response: J_SCHEMA_SUCCESS,
 } as const);
@@ -141,6 +145,17 @@ const SCHEMA_REGISTER = createSchema({
   },
   response: J_SCHEMA_TOKEN,
 } as const);
+
+function checkId(v: string) {
+  if (v.length !== 18) return false;
+  const nums = [7, 9, 10, 5, 8, 4, 2, 1, 6, 3, 7, 9, 10, 5, 8, 4, 2];
+  const res = nums.reduce((sum, ch, i) => sum + Number(v.charAt(i)) * ch, 0);
+
+  const mod = res % 11;
+  const endNums = [1, 0, "x", 9, 8, 7, 6, 5, 4, 3, 2];
+  return v.substring(17) === endNums[mod].toString().toLowerCase();
+}
+
 
 export default fp(async function (ins) {
   const fastify = ins.withTypeProvider<JsonSchemaToTsProvider>();
@@ -262,7 +277,7 @@ SELECT shop_id, shop_name, shop_location, shop_phone, delivery_range, business_s
       }
     }
   );
-  fastify.post(
+  fastify.put(
     "/user/info",
     {
       schema: SCHEMA_UPDATE_INFO,
@@ -278,7 +293,7 @@ SELECT shop_id, shop_name, shop_location, shop_phone, delivery_range, business_s
       const args: unknown[] = [];
       let argIndex = 1;
       for (const [k, v] of Object.entries(req.body)) {
-        if (!v) continue;
+        if (v === null || v === "") continue;
         if (
           role === "customer" &&
           ["cust_name", "id", "cust_birth", "cust_gender"].includes(k)
@@ -292,6 +307,10 @@ SELECT shop_id, shop_name, shop_location, shop_phone, delivery_range, business_s
           args.push(md5(v as string));
         } else if (["cust_birth", "cour_onboarding_time"].includes(k)) {
           args.push(new Date(v));
+        } else if (k === "id" && !checkId(v as string)) {
+          return rep.code(400).send({
+            message: "Id card number validation failed."
+          });
         } else {
           args.push(v);
         }
@@ -301,7 +320,7 @@ UPDATE ${role}
     SET (${updatedCols.join(", ")}) = (${placeholders.join(", ")})
 `;
       if (args.length === 0) {
-        return rep.code(401).send({
+        return rep.code(400).send({
           message: "No updated field.",
         });
       }
@@ -321,7 +340,7 @@ UPDATE ${role}
     },
     async (req, rep) => {
       if (req.user.role !== "admin") {
-        return rep.code(401).send({
+        return rep.code(403).send({
           message: "Only administrators can register user now.",
         });
       }
@@ -341,6 +360,74 @@ INSERT INTO ${role} (${nameCol}, ${phoneCol}, ${passwordCol})
       return {
         token: fastify.signJwt(rows[0][idCol], role),
         role,
+      };
+    }
+  );
+  fastify.post(
+    "/user/password",
+    {
+      schema: SCHEMA_CHANGE_PASSWORD,
+      preHandler: [fastify.verifyJwt],
+    },
+    async (req, rep) => {
+      const { id, role } = req.user;
+      const { oldPassword, newPassword } = req.body;
+      const encryptedOld = md5(oldPassword);
+      const idCol = role.substring(0, 4) + "_id";
+      const passwordCol = role.substring(0, 4) + "_password";
+      const { rowCount } = await query(
+        `
+SELECT * FROM ${role} WHERE ${idCol} = $1 AND ${passwordCol} = $2`,
+        [id, encryptedOld]
+      );
+      if (!rowCount) {
+        return rep.code(403).send({
+          message: "Old password not correct.",
+        });
+      }
+      const encryptedNew = md5(newPassword);
+      await query(
+        `
+UPDATE ${role}
+    SET ${passwordCol} = $2
+    WHERE ${idCol} = $1`,
+        [id, encryptedNew]
+      );
+      return {
+        success: true as const,
+      };
+    }
+  );
+  fastify.put(
+    "/user/phone",
+    {
+      schema: SCHEMA_CHANGE_PHONE,
+      preHandler: [fastify.verifyJwt],
+    },
+    async (req, rep) => {
+      const { id, role } = req.user;
+      const { phone, password } = req.body;
+      const encrypted = md5(password);
+      const prefix = role.substring(0, 4);
+      const idCol = prefix + "_id";
+      const phoneCol = prefix + "_phone";
+      const passwordCol = prefix + "_password";
+
+      const { rowCount } = await query(
+        `
+UPDATE ${role}
+    SET ${phoneCol} = $1
+    WHERE ${idCol} = $2 AND ${passwordCol} = $3
+    RETURNING *`,
+        [phone, id, encrypted]
+      );
+      if (!rowCount) {
+        rep.code(403).send({
+          message: "Update phone failed. Maybe the password is wrong.",
+        });
+      }
+      return {
+        success: true as const,
       };
     }
   );

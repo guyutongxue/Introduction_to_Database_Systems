@@ -83,7 +83,7 @@ export default fp(async (inst) => {
       const { rows } = await query<SqlShop>(`
 SELECT *
     FROM shop
-    WHERE business_status = 1`);
+    WHERE business_status = 1 AND shop_location IS NOT NULL`);
       return rows.map(sql2Reply);
     }
   );
@@ -132,7 +132,7 @@ SELECT *
       const { id: shop_id, role } = req.user;
       const { dish_name, dish_value } = req.body;
       if (role !== "shop") {
-        return rep.code(401).send({
+        return rep.code(403).send({
           message: "Only shop can add dishes.",
         });
       }
@@ -158,7 +158,7 @@ INSERT INTO dish (shop_id, dish_name, dish_value)
       const { id: shop_id, role } = req.user;
       const { dish_name, dish_value } = req.body;
       if (role !== "shop") {
-        return rep.code(401).send({
+        return rep.code(403).send({
           message: "Only shop can modify dishes.",
         });
       }
@@ -205,7 +205,7 @@ UPDATE dish
       const { id: dish_id } = req.params;
       const { id: shop_id, role } = req.user;
       if (role !== "shop") {
-        return rep.code(401).send({
+        return rep.code(403).send({
           message: "Only shop can delete dishes.",
         });
       }

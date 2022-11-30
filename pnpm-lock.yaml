@@ -18,6 +18,7 @@ importers:
       '@types/pg': ^8.6.5
       '@typescript-eslint/eslint-plugin': ^5.44.0
       '@typescript-eslint/parser': ^5.44.0
+      dayjs: ^1.11.6
       dotenv: ^16.0.3
       eslint: ^8.28.0
       eslint-plugin-only-warn: ^1.0.3
@@ -40,6 +41,7 @@ importers:
       '@fastify/jwt': 6.4.0
       '@fastify/static': 6.5.1
       '@fastify/type-provider-json-schema-to-ts': 2.1.1_pdtb4dac6gm5nsusgphdbtrd4u
+      dayjs: 1.11.6
       dotenv: 16.0.3
       fastify: 4.10.0
       fastify-plugin: 4.3.0

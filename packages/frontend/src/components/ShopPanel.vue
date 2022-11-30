@@ -1,9 +1,10 @@
 <script setup lang="ts">
-import type { UserInfoShopRes, Dish } from "@/api";
+import type { UserInfoShopRes, Dish, OrderDetailed } from "@/api";
 import { HOST } from "@/config";
 import axios from "axios";
 import { onMounted } from "vue";
 import DishList from "./DishList.vue";
+import OrderList from "./OrderList.vue";
 import EditDishForm from "./EditDishForm.vue";
 
 const listComponent: typeof DishList | undefined = $ref();
@@ -48,10 +49,27 @@ async function deleteDish(dish: Dish) {
   listComponent?.refreshDishes();
 }
 
-onMounted(() => {});
+let myOrders = $ref([] as OrderDetailed[]);
+
+async function refreshOrders() {
+  const { data } = await axios.get(`${HOST}/orders`);
+  myOrders = data;
+}
+
+onMounted(() => {
+  refreshOrders();
+});
 </script>
 
 <template>
+  <VAlert
+    v-if="info.shop_location === undefined"
+    title="您还没有填写商铺地址"
+    type="warning"
+    class="mb-3"
+  >
+    客户将无法在您这里下单。请更新您的用户信息-商铺地址。
+  </VAlert>
   <DishList
     ref="listComponent"
     :info="info"
@@ -59,12 +77,15 @@ onMounted(() => {});
     @new="newDish"
     @modify="modifyDish"
     @delete="deleteDish"
-  ></DishList>
+  >
+  </DishList>
+  <OrderList class="mt-3" :orders="myOrders"></OrderList>
   <VDialog v-model="showEditDialog" :max-width="500">
     <EditDishForm
       :init-name="editDish?.dish_name ?? ''"
       :init-value="editDish?.dish_value ?? 0"
       @done="onEditDone"
-    ></EditDishForm>
+    >
+    </EditDishForm>
   </VDialog>
 </template>

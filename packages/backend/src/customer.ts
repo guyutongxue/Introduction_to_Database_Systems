@@ -61,7 +61,7 @@ export default fp(async function (ins) {
       const { id, role } = req.user;
       const { dish_id, car_num = 1 } = req.body;
       if (role !== "customer") {
-        return rep.code(401).send({
+        return rep.code(403).send({
           message: "Only customer can set shopping car.",
         });
       }
@@ -103,7 +103,7 @@ UPDATE shopping_car
       const { id, role } = req.user;
       const { dish_id, car_num = 1 } = req.body;
       if (role !== "customer") {
-        return rep.code(401).send({
+        return rep.code(403).send({
           message: "Only customer can set shopping car.",
         });
       }
@@ -152,7 +152,7 @@ UPDATE shopping_car
     async (req, rep) => {
       const { id, role } = req.user;
       if (role !== "customer") {
-        return rep.code(401).send({
+        return rep.code(403).send({
           message: "Only customer can get shopping car.",
         });
       }

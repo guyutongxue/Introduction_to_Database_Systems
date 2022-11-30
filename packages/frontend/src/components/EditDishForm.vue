@@ -40,6 +40,7 @@ onMounted(() => {
           <VCol>
             <VTextField
               variant="outlined"
+              color="primary"
               label="菜品名称"
               v-model="name"
               :rules="[checkName]"
@@ -50,6 +51,7 @@ onMounted(() => {
           <VCol>
             <VTextField
               variant="outlined"
+              color="primary"
               label="菜品价格"
               prepend-inner-icon="mdi-currency-cny"
               v-model="value"

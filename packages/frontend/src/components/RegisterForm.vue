@@ -37,7 +37,8 @@ async function register() {
           autocomplete="username"
           :rules="[checkPhone]"
           required
-        ></VTextField>
+        >
+        </VTextField>
         <VTextField
           variant="underlined"
           color="primary"
@@ -46,7 +47,8 @@ async function register() {
           autocomplete="name"
           :rules="[checkName]"
           required
-        ></VTextField>
+        >
+        </VTextField>
         <VTextField
           variant="underlined"
           color="primary"
@@ -56,7 +58,8 @@ async function register() {
           :rules="[checkPassword]"
           type="password"
           required
-        ></VTextField>
+        >
+        </VTextField>
       </VForm>
     </VCardText>
     <VCardActions>

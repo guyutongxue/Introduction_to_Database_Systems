@@ -184,7 +184,7 @@ const DISH_KEYS = ["shop_id", "dish_name", "dish_value", "dish_sales"];
 const DISH_NUM = 200;
 toSql("dish", DISH_KEYS, DISH_NUM, createDish);
 
-export const ORDER_STATE = {
+const ORDER_STATE = {
   WAITING: 0,
   ACCEPTED: 1,
   COURIER_RECEIVED: 2,
