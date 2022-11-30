@@ -41,6 +41,7 @@ export interface SqlOrderDetailed {
   cust_name: string;
   shop_id: number;
   shop_name: string;
+  shop_location: string;
   cour_id: number | null;
   order_value: number;
   order_begin_time: Date;

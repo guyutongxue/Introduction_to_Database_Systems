@@ -59,6 +59,7 @@ export type OrderDetailed = {
   cust_name: string;
   shop_id: number;
   shop_name: string;
+  shop_location: string;
   cour_id: number;
   order_value: number;
   order_begin_time: string; // ISO format

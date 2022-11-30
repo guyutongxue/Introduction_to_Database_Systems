@@ -97,6 +97,7 @@ export const J_SCHEMA_ORDER_DETAILED = {
     cust_name: { type: "string" },
     shop_id: { type: "number" },
     shop_name: { type: "string" },
+    shop_location: { type: "string" },
     cour_id: { type: "number" },
     order_value: { type: "number" },
     order_begin_time: { type: "string" },

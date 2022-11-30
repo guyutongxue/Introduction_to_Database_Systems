@@ -110,7 +110,7 @@ INSERT INTO contain (dish_id, order_id, contain_num)
       const idCol = role.substring(0, 4) + "_id";
       const { rows } = await query<SqlOrderDetailed>(
         `
-SELECT order_id, cust_id, cust_name, shop_id, shop_name, cour_id, order_value, order_begin_time, order_destination, order_state
+SELECT order_id, cust_id, cust_name, shop_id, shop_name, shop_location, cour_id, order_value, order_begin_time, order_destination, order_state
     FROM shop NATURAL JOIN orders NATURAL JOIN customer
     WHERE ${idCol} = $1
     ORDER BY order_begin_time DESC`,

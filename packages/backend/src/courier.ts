@@ -21,7 +21,7 @@ export default fp(async (inst) => {
       }
       const { rows } = await query<SqlOrderDetailed>(
         `
-SELECT order_id, cust_id, cust_name, shop_id, shop_name, cour_id, order_begin_time, order_state
+SELECT order_id, cust_id, cust_name, shop_id, shop_name, shop_location, cour_id, order_begin_time, order_destination, order_state
     FROM shop NATURAL JOIN orders NATURAL JOIN customer
     WHERE cour_id IS NULL
     ORDER BY order_begin_time DESC`
