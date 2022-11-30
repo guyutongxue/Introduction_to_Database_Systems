@@ -29,7 +29,7 @@ services:
     ports:
       - "$PORT:$PORT"
     volumes:
-      - log:./packages/backend/assignment.log
+      - log:/dbassignment/packages/backend/assignment.log
 
 volumes:
   postgres:
