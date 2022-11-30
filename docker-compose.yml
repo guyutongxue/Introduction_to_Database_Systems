@@ -28,6 +28,9 @@ services:
     restart: unless-stopped
     ports:
       - "$PORT:$PORT"
+    volumes:
+      - log:./packages/backend/assignment.log
 
 volumes:
   postgres:
+  log:

@@ -9,6 +9,7 @@ import order from "./order";
 import shop from "./shop";
 import fastifyCors from "@fastify/cors";
 import courier from "./courier";
+import log from "./log";
 
 const PORT = Number(env.PORT ?? 3000);
 const HOST = env.HOST ?? "0.0.0.0";
@@ -29,6 +30,7 @@ await fastify.register(order);
 await fastify.register(courier);
 
 await fastify.register(frontend);
+await fastify.register(log);
 
 await fastify.listen({
   host: HOST,

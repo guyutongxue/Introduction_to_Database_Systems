@@ -3,7 +3,7 @@
 import { faker } from "@faker-js/faker/locale/zh_CN";
 import { fakeIdCode } from "./fake_id.mjs";
 import { pinyin } from "pinyin";
-import { existsSync, readFileSync, writeFileSync, unlinkSync } from "node:fs";
+import { existsSync, readFileSync, appendFileSync, unlinkSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import moment from "moment";
@@ -18,7 +18,7 @@ if (existsSync(OUTPUT_FILE)) {
   unlinkSync(OUTPUT_FILE);
 }
 async function emit(/** @type {string} */ value) {
-  writeFileSync(OUTPUT_FILE, value, { flag: "a" });
+  appendFileSync(OUTPUT_FILE, value);
 }
 
 const SCHEMA_SQL = readFileSync(path.join(__dirname, "schema.sql"), "utf-8");
