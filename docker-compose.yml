@@ -18,6 +18,8 @@ services:
   adminer:
     image: adminer
     restart: always
+    environment:
+      ADMINER_PLUGINS: "frames"
     ports:
       - "54188:8080"
   
