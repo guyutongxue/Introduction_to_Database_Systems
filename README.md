@@ -6,7 +6,7 @@
 
 实现平台：Web(Vue.js) + Node.js(Fastify) + PostgreSql
 
-- E-R 模型图、关系模型图参见 [docs/graphs.md](docs/graphs.md)；
+- E-R 模型图、关系模型图参见 [docs/graphs](docs/graphs/)；
 - 创建必要的数据：未在此仓库中提供，生成代码参见 [packages/mock](packages/mock/);
 - 实现查询、触发器、用户权限管理：参见 [docs/sql.md](docs/sql.md)；
 - MapReduce 应用：参见 [docs/mapreduce](docs/mapreduce/)；

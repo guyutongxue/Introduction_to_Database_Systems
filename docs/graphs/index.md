@@ -2,8 +2,8 @@
 
 ## E-R 图
 
-
+![er](./er.jpg)
 
 ## 关系模式图
 
-
+![schema](./schema.png)
