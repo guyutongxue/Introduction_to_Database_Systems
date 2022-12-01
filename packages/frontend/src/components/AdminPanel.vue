@@ -2,7 +2,7 @@
 import RegisterForm from "./RegisterForm.vue";
 
 const showAdminer = import.meta.env.PROD;
-const adminerUrl = `${window.location.hostname}:54188`;
+const adminerUrl = `${window.location.hostname}:54188/?pgsql=db`;
 </script>
 
 <template>
