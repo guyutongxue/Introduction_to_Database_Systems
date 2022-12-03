@@ -63,6 +63,10 @@ const expanded = $ref(["info"]);
 const formPhone = $ref(false);
 const formPassword = $ref(false);
 
+// Component refs
+let formPhoneRef: any;
+let formPasswordRef: any;
+
 async function updateInfo() {
   const putInfo: Record<string, any> = {};
   console.log({ ...info });
@@ -89,7 +93,7 @@ async function changePhone() {
     phone: newPhone,
     password,
   });
-  password = "";
+  formPhoneRef?.reset();
 }
 
 let oldPassword = $ref("");
@@ -99,8 +103,7 @@ async function changePassword() {
     oldPassword,
     newPassword,
   });
-  oldPassword = "";
-  newPassword = "";
+  formPasswordRef?.reset();
 }
 
 onMounted(() => {
@@ -176,7 +179,7 @@ onMounted(() => {
       </VExpansionPanel>
       <VExpansionPanel title="电话号码" value="phone">
         <VExpansionPanelText>
-          <VForm v-model="formPhone">
+          <VForm v-model="formPhone" ref="formPhoneRef">
             <VTextField
               variant="underlined"
               color="primary"
@@ -207,7 +210,7 @@ onMounted(() => {
       </VExpansionPanel>
       <VExpansionPanel title="修改密码" value="password">
         <VExpansionPanelText>
-          <VForm v-model="formPassword">
+          <VForm v-model="formPassword" ref="formPasswordRef">
             <VTextField
               variant="underlined"
               color="primary"
