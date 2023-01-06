@@ -28,7 +28,7 @@ PORT=80
 ### 生成测试数据
 
 ```sh
-node scripts/init.mjs
+pnpm mock
 ```
 
 ### Docker
